@@ -1,0 +1,28 @@
+name = "archaic_terminal"
+description = "Terminal setup for other libraries"
+version = "0.0.1"
+
+authors = ["Paul Jarrett"]
+maintainers = ["Paul Jarrett <jarrett.paul.young@gmail.com>"]
+maintainers-logins = ["pyjarrett"]
+licenses = "Apache-2.0"
+tags = ["terminal", "command-line", "console"]
+
+project-files = ["archaic_terminal.gpr", "archaic_terminal_tests.gpr"]
+
+[gpr-externals]
+Auto_Exceptions = ["enabled", "disabled"]
+Mode = ["debug", "optimize"]
+
+[gpr-set-externals.'case(os)']
+windows = { Platform = "windows" }
+linux = { Platform = "linux" }
+macos = { Platform = "macos" }
+
+[available.'case(os)']
+linux = true
+windows = true
+macos = false
+
+[[depends-on]]  # This line was added by `alr with`
+progress_indicators = "~0.0.1"  # This line was added by `alr with`
