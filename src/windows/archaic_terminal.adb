@@ -48,7 +48,7 @@ package body Archaic_Terminal is
         pragma Import (Stdcall, SetConsoleOutputCP, "SetConsoleOutputCP");
 
         --!pp off
-        type Input_Console_Modes is
+        type Console_Input_Flags is
             (ENABLE_PROCESSED_INPUT,
              ENABLE_LINE_INPUT,
              ENABLE_ECHO_INPUT,
@@ -60,7 +60,7 @@ package body Archaic_Terminal is
              ENABLE_AUTO_POSITION,
              ENABLE_VIRTUAL_TERMINAL_INPUT);
 
-        for Input_Console_Modes use
+        for Console_Input_Flags use
             (ENABLE_PROCESSED_INPUT        => 16#0001#,
              ENABLE_LINE_INPUT             => 16#0002#,
              ENABLE_ECHO_INPUT             => 16#0004#,
@@ -72,14 +72,14 @@ package body Archaic_Terminal is
              ENABLE_AUTO_POSITION          => 16#0100#,
              ENABLE_VIRTUAL_TERMINAL_INPUT => 16#0200#);
 
-        type Output_Console_Modes is
+        type Console_Output_Flags is
             (ENABLE_PROCESSED_OUTPUT,
              ENABLE_WRAP_AT_EOL_OUTPUT,
              ENABLE_VIRTUAL_TERMINAL_PROCESSING,
              DISABLE_NEWLINE_AUTO_RETURN,
              ENABLE_LVB_GRID_WORLDWIDE);
 
-        for Output_Console_Modes use
+        for Console_Output_Flags use
             (ENABLE_PROCESSED_OUTPUT            => 16#0001#,
              ENABLE_WRAP_AT_EOL_OUTPUT          => 16#0002#,
              ENABLE_VIRTUAL_TERMINAL_PROCESSING => 16#0004#,
@@ -88,15 +88,18 @@ package body Archaic_Terminal is
         --!pp on
 
         pragma Warnings (Off, "bits of *unused");
-        type Input_Console_Mode is array (Input_Console_Modes) of Boolean with
+        type Console_Input_Mode is array (Console_Input_Flags) of Boolean with
             Pack,
             Size => 32;
-        type Output_Console_Mode is array (Output_Console_Modes) of Boolean with
+        type Console_Output_Mode is array (Console_Output_Flags) of Boolean with
             Pack,
             Size => 32;
         pragma Warnings (On, "bits of *unused");
 
-        pragma Unreferenced (Input_Console_Mode, Output_Console_Mode);
+        function To_Console_Input_Mode is new Ada.Unchecked_Conversion (DWORD, Console_Input_Mode);
+        function To_Console_Output_Mode is new Ada.Unchecked_Conversion (DWORD, Console_Output_Mode);
+        function To_DWORD is new Ada.Unchecked_Conversion (Console_Input_Mode, DWORD);
+        function To_DWORD is new Ada.Unchecked_Conversion (Console_Output_Mode, DWORD);
     end Windows_Bindings;
     ---------------------------------------------------------------------------
     --
@@ -112,20 +115,55 @@ package body Archaic_Terminal is
     Input_Settings, Output_Settings, Error_Settings : Win.DWORD;
     Original_Input_CP, Original_Output_CP           : Win.UINT;
 
-    type IOStream is record
-        Handle   : Win.HANDLE        := Win.INVALID_HANDLE_VALUE;
-        Settings : aliased Win.DWORD := 0;
+    type Input_Stream is record
+        Handle   : Win.HANDLE             := Win.INVALID_HANDLE_VALUE;
+        Settings : Win.Console_Input_Mode := Win.To_Console_Input_Mode (0);
     end record;
+
+    type Output_Stream is record
+        Handle   : Win.HANDLE              := Win.INVALID_HANDLE_VALUE;
+        Settings : Win.Console_Output_Mode := Win.To_Console_Output_Mode (0);
+    end record;
+
+    procedure Apply (Input : Input_Stream) is
+    begin
+        if Win.SetConsoleMode(Input.Handle, Win.To_DWORD(Input.Settings)) = 0 then
+            AIO.Put_Line ("Unable to change console modes.");
+        end if;
+    end Apply;
+
+    procedure Apply (Output : Output_Stream) is
+    begin
+        if Win.SetConsoleMode(Output.Handle, Win.To_DWORD(Output.Settings)) = 0 then
+            AIO.Put_Line ("Unable to change console modes.");
+        end if;
+    end Apply;
 
     ---------------------------------------------------------------------------
     -- The triad of I/O streams.
     ---------------------------------------------------------------------------
-    Std_Input, Std_Output, Std_Error : IOStream;
+    Std_Input             : Input_Stream;
+    Std_Output, Std_Error : Output_Stream;
 
-    function Gather (Stream : in out IOStream) return Boolean is
+    function Load_Std_Settings return Boolean is
+        Input_DWORD, Output_DWORD, Error_DWORD : aliased Win.DWORD;
     begin
-        return Win.GetConsoleMode (Stream.Handle, Stream.Settings'Unchecked_Access) /= 0;
-    end Gather;
+        if Win.GetConsoleMode (Std_Input.Handle, Input_DWORD'Unchecked_Access) = 0 then
+            return False;
+        end if;
+        if Win.GetConsoleMode (Std_Output.Handle, Output_DWORD'Unchecked_Access) = 0 then
+            return False;
+        end if;
+        if Win.GetConsoleMode (Std_Error.Handle, Error_DWORD'Unchecked_Access) = 0 then
+            return False;
+        end if;
+
+        Std_Input.Settings  := Win.To_Console_Input_Mode (Input_DWORD);
+        Std_Output.Settings := Win.To_Console_Output_Mode (Output_DWORD);
+        Std_Error.Settings  := Win.To_Console_Output_Mode (Error_DWORD);
+
+        return True;
+    end Load_Std_Settings;
 
     function Enable_UTF8 return Boolean is
     begin
@@ -146,15 +184,14 @@ package body Archaic_Terminal is
             return False;
         end if;
 
-        if not Gather (Std_Input) or else not Gather (Std_Output) or else not Gather (Std_Error) then
-            AIO.Put_Line ("Unable to gather all standard streams.");
+        if not Load_Std_Settings then
             return False;
         end if;
 
         -- Save the initial settings to be restored later.
-        Input_Settings  := Std_Input.Settings;
-        Output_Settings := Std_Output.Settings;
-        Error_Settings  := Std_Error.Settings;
+        Input_Settings  := Win.To_DWORD (Std_Input.Settings);
+        Output_Settings := Win.To_DWORD (Std_Output.Settings);
+        Error_Settings  := Win.To_DWORD (Std_Error.Settings);
 
         Original_Input_CP  := Win.GetConsoleCP;
         Original_Output_CP := Win.GetConsoleOutputCP;
@@ -187,12 +224,27 @@ package body Archaic_Terminal is
 
     procedure Set (Setting : Input_Setting; Enabled : Boolean) is
     begin
-        null;
+        case Setting is
+            when Echo =>
+                Std_Input.Settings (Win.ENABLE_ECHO_INPUT) := Enabled;
+                Apply(Std_Input);
+            when Line_Input =>
+                Std_Input.Settings (Win.ENABLE_LINE_INPUT) := Enabled;
+                Apply(Std_Input);
+        end case;
     end Set;
 
     procedure Set (Setting : Output_Setting; Enabled : Boolean) is
     begin
-        null;
+        case Setting is
+            when Escape_Sequences =>
+                Std_Output.Settings (Win.ENABLE_VIRTUAL_TERMINAL_PROCESSING) := Enabled;
+                Std_Error.Settings (Win.ENABLE_VIRTUAL_TERMINAL_PROCESSING)  := Enabled;
+                Std_Input.Settings (Win.ENABLE_VIRTUAL_TERMINAL_INPUT)       := Enabled;
+                Apply(Std_Input);
+                Apply(Std_Output);
+                Apply(Std_Error);
+        end case;
     end Set;
 
 end Archaic_Terminal;
