@@ -24,5 +24,6 @@ linux = true
 windows = true
 macos = false
 
+
 [[depends-on]]  # This line was added by `alr with`
 progress_indicators = "~0.0.1"  # This line was added by `alr with`

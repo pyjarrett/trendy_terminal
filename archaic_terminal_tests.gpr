@@ -2,6 +2,7 @@
 --  This section was automatically added by Alire
 with "ansi.gpr";
 with "progress_indicators.gpr";
+with "progress_indicators_tests.gpr";
 -- end auto-gpr-with --
 with "archaic_terminal";
 
