@@ -11,7 +11,6 @@ tags = ["terminal", "command-line", "console"]
 project-files = ["archaic_terminal.gpr"]
 
 [gpr-externals]
-Auto_Exceptions = ["enabled", "disabled"]
 Mode = ["debug", "optimize"]
 
 [gpr-set-externals.'case(os)']
