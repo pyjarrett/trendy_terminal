@@ -60,7 +60,7 @@ project Archaic_Terminal is
    case Style_Checks is
       when "enabled" =>
          Style_Checks_Switches :=
-           (--"-gnatyg",   -- GNAT Style checks
+           ("-gnatyg",   -- GNAT Style checks
             "-gnaty4C",  -- 4 space indentation and 1 space comments
             "-gnaty-d",  -- Disable no DOS line terminators
             "-gnatyM120", -- Maximum line length

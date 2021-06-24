@@ -6,8 +6,6 @@ package Archaic_Terminal is
     type Input_Setting is (Echo, Line_Input);
     type Output_Setting is (Escape_Sequences);
 
-    procedure Print_Capabilities;
-
     procedure Set (Setting : Input_Setting; Enabled : Boolean);
     procedure Set (Setting : Output_Setting; Enabled : Boolean);
 

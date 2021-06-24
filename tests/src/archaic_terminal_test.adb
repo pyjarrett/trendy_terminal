@@ -19,7 +19,7 @@ begin
         Ada.Text_IO.Put_Line ("Archaic terminal failed to initialized.");
     end if;
 
-    if False then
+    if True then
         Archaic_Terminal.Set (Archaic_Terminal.Echo, False);
         Archaic_Terminal.Set (Archaic_Terminal.Line_Input, False);
         Archaic_Terminal.Set (Archaic_Terminal.Escape_Sequences, True);
@@ -44,7 +44,7 @@ begin
             Last : Character;
         begin
             loop
-                Ada.Text_IO.Get (Last);
+                Ada.Text_IO.Get_Immediate (Last);
                 Ada.Text_IO.Put_Line ("CHAR : " & Last'Image);
                 exit when Last = Ada.Characters.Latin_1.CR;
                 exit when Last = Ada.Characters.Latin_1.LF;
