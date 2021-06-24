@@ -8,7 +8,7 @@ maintainers-logins = ["pyjarrett"]
 licenses = "Apache-2.0"
 tags = ["terminal", "command-line", "console"]
 
-project-files = ["archaic_terminal.gpr", "archaic_terminal_tests.gpr"]
+project-files = ["archaic_terminal.gpr"]
 
 [gpr-externals]
 Auto_Exceptions = ["enabled", "disabled"]
@@ -23,7 +23,3 @@ macos = { Platform = "macos" }
 linux = true
 windows = true
 macos = false
-
-
-[[depends-on]]  # This line was added by `alr with`
-progress_indicators = "~0.0.1"  # This line was added by `alr with`
