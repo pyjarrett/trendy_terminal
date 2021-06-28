@@ -1,5 +1,5 @@
 name = "trendy_terminal"
-description = "Terminal setup for other libraries"
+description = "Terminal options and setup"
 version = "0.0.1"
 
 authors = ["Paul Jarrett"]
