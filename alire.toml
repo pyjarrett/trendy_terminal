@@ -14,9 +14,9 @@ project-files = ["trendy_terminal.gpr"]
 Mode = ["debug", "optimize"]
 
 [gpr-set-externals.'case(os)']
-windows = { Platform = "windows" }
-linux = { Platform = "linux" }
-macos = { Platform = "macos" }
+windows = { Trendy_Terminal_Platform = "windows" }
+linux = { Trendy_Terminal_Platform = "linux" }
+macos = { Trendy_Terminal_Platform = "macos" }
 
 [available.'case(os)']
 linux = true
