@@ -3,34 +3,34 @@ project Trendy_Terminal is
    for Library_Name use "Trendy_Terminal";
    for Library_Version use "0.0.1";
 
-   AT_Sources := ("src/common");
+   Trendy_Terminal_Sources := ("src/common");
 
    type Platform_Type is ("windows", "linux", "macos");
    Platform : Platform_Type := external ("Platform");
    case Platform is
-      when "windows" => AT_Sources := AT_Sources & "src/windows";
-      when "linux"   => AT_Sources := AT_Sources & "src/linux";
-      when "macos"   => AT_Sources := AT_Sources & "src/mac";
+      when "windows" => Trendy_Terminal_Sources := Trendy_Terminal_Sources & "src/windows";
+      when "linux"   => Trendy_Terminal_Sources := Trendy_Terminal_Sources & "src/linux";
+      when "macos"   => Trendy_Terminal_Sources := Trendy_Terminal_Sources & "src/mac";
    end case;
 
-   for Source_Dirs use AT_Sources;
+   for Source_Dirs use Trendy_Terminal_Sources;
    for Object_Dir use "obj";
    for Create_Missing_Dirs use "True";
    for Library_Dir use "lib";
 
    type Library_Type_Type is ("relocatable", "static", "static-pic");
    Library_Type : Library_Type_Type :=
-     external ("ARCHAIC_TERMINAL_LIBRARY_TYPE", external ("LIBRARY_TYPE", "static"));
+     external ("TRENDY_TERMINAL_LIBRARY_TYPE", external ("LIBRARY_TYPE", "static"));
    for Library_Kind use Library_Type;
 
    type Enabled_Kind is ("enabled", "disabled");
-   Compile_Checks : Enabled_Kind := External ("ARCHAIC_TERMINAL_COMPILE_CHECKS", "enabled");
-   Runtime_Checks : Enabled_Kind := External ("ARCHAIC_TERMINAL_RUNTIME_CHECKS", "enabled");
-   Style_Checks : Enabled_Kind := External ("ARCHAIC_TERMINAL_STYLE_CHECKS", "enabled");
-   Contracts_Checks : Enabled_Kind := External ("ARCHAIC_TERMINAL_CONTRACTS", "enabled");
+   Compile_Checks : Enabled_Kind := External ("TRENDY_TERMINAL_COMPILE_CHECKS", "enabled");
+   Runtime_Checks : Enabled_Kind := External ("TRENDY_TERMINAL_RUNTIME_CHECKS", "enabled");
+   Style_Checks : Enabled_Kind := External ("TRENDY_TERMINAL_STYLE_CHECKS", "enabled");
+   Contracts_Checks : Enabled_Kind := External ("TRENDY_TERMINAL_CONTRACTS", "enabled");
 
    type Build_Kind is ("debug", "optimize");
-   Build_Mode : Build_Kind := External ("ARCHAIC_TERMINAL_BUILD_MODE", "debug");
+   Build_Mode : Build_Kind := External ("TRENDY_TERMINAL_BUILD_MODE", "debug");
 
    Compile_Checks_Switches := ();
    case Compile_Checks is
