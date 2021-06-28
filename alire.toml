@@ -1,4 +1,4 @@
-name = "archaic_terminal"
+name = "trendy_terminal"
 description = "Terminal setup for other libraries"
 version = "0.0.1"
 
@@ -8,7 +8,7 @@ maintainers-logins = ["pyjarrett"]
 licenses = "Apache-2.0"
 tags = ["terminal", "command-line", "console"]
 
-project-files = ["archaic_terminal.gpr"]
+project-files = ["trendy_terminal.gpr"]
 
 [gpr-externals]
 Mode = ["debug", "optimize"]

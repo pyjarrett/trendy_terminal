@@ -1,1 +1,1 @@
-# archaic_terminal
+# trendy_terminal
