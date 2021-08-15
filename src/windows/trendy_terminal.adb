@@ -1,7 +1,8 @@
+with Ada.Characters.Latin_1;
 with Ada.Text_IO;
 with Ada.Unchecked_Conversion;
 
-with Interfaces.C;
+with Interfaces.C.Strings;
 
 package body Trendy_Terminal is
 
@@ -30,6 +31,8 @@ package body Trendy_Terminal is
         function GetConsoleMode (H : HANDLE; Mode : LPDWORD) return BOOL;
         function SetConsoleMode (H : HANDLE; dwMode : DWORD) return BOOL;
 
+        function GetLastError return DWORD;
+
         CP_UTF8 : constant := 65_001;
 
         function GetConsoleCP return UINT;
@@ -41,6 +44,7 @@ package body Trendy_Terminal is
         pragma Import (Stdcall, GetStdHandle, "GetStdHandle");
         pragma Import (Stdcall, GetConsoleMode, "GetConsoleMode");
         pragma Import (Stdcall, SetConsoleMode, "SetConsoleMode");
+        pragma Import (Stdcall, GetLastError, "GetLastError");
 
         pragma Import (Stdcall, GetConsoleCP, "GetConsoleCP");
         pragma Import (Stdcall, SetConsoleCP, "SetConsoleCP");
@@ -100,6 +104,13 @@ package body Trendy_Terminal is
         function To_Console_Output_Mode is new Ada.Unchecked_Conversion (DWORD, Console_Output_Mode);
         function To_DWORD is new Ada.Unchecked_Conversion (Console_Input_Mode, DWORD);
         function To_DWORD is new Ada.Unchecked_Conversion (Console_Output_Mode, DWORD);
+
+        type LPCVOID is new Interfaces.C.Strings.chars_ptr;
+        type LPOVERLAPPED is new Interfaces.C.ptrdiff_t;
+
+        function WriteFile(hFile : HANDLE; lpBuffer : LPCVOID; BytesToWrite : DWORD;
+                           NumBytesWritten : LPDWORD; Overlapped : LPOVERLAPPED) return BOOL;
+        pragma Import (Stdcall, WriteFile, "WriteFile");
     end Windows_Bindings;
     ---------------------------------------------------------------------------
     --
@@ -125,25 +136,23 @@ package body Trendy_Terminal is
         Settings : Win.Console_Output_Mode := Win.To_Console_Output_Mode (0);
     end record;
 
-    procedure Apply (Input : Input_Stream) is
-    begin
-        if Win.SetConsoleMode(Input.Handle, Win.To_DWORD(Input.Settings)) = 0 then
-            AIO.Put_Line ("Unable to change console modes.");
-        end if;
-    end Apply;
-
-    procedure Apply (Output : Output_Stream) is
-    begin
-        if Win.SetConsoleMode(Output.Handle, Win.To_DWORD(Output.Settings)) = 0 then
-            AIO.Put_Line ("Unable to change console modes.");
-        end if;
-    end Apply;
-
     ---------------------------------------------------------------------------
     -- The triad of I/O streams.
     ---------------------------------------------------------------------------
     Std_Input             : Input_Stream;
     Std_Output, Std_Error : Output_Stream;
+
+    procedure Write_Terminal(S : String) is
+        Native : aliased Interfaces.C.Strings.chars_ptr := Interfaces.C.Strings.New_String(S);
+        Written : aliased Win.DWORD;
+    begin
+        if Win.WriteFile (Std_Output.Handle, Win.LPCVOID(Native), S'Length, Written'Unchecked_Access, 0) = 0 then
+            AIO.Put_Line ("Write failed.");
+        end if;
+        Interfaces.C.Strings.Free(Native);
+    end Write_Terminal;
+
+    procedure Write_Terminal_Line(S : String) renames AIO.Put_Line;
 
     function Load_Std_Settings return Boolean is
         Input_DWORD, Output_DWORD, Error_DWORD : aliased Win.DWORD;
@@ -180,7 +189,7 @@ package body Trendy_Terminal is
 
         if Std_Output.Handle = Win.INVALID_HANDLE_VALUE or else Std_Input.Handle = Win.INVALID_HANDLE_VALUE
             or else Std_Error.Handle = Win.INVALID_HANDLE_VALUE then
-            AIO.Put_Line ("Unable to get one or more of in/out/err handles.");
+            Write_Terminal_Line ("Unable to get one or more of in/out/err handles.");
             return False;
         end if;
 
@@ -197,7 +206,7 @@ package body Trendy_Terminal is
         Original_Output_CP := Win.GetConsoleOutputCP;
 
         if not Enable_UTF8 then
-            AIO.Put_Line ("Unable to set UTF8 code page.");
+            Write_Terminal_Line ("Unable to set UTF8 code page.");
             return False;
         end if;
 
@@ -209,18 +218,27 @@ package body Trendy_Terminal is
         if Win.SetConsoleMode (Std_Input.Handle, Input_Settings) = 0
             or else Win.SetConsoleMode (Std_Output.Handle, Output_Settings) = 0
             or else Win.SetConsoleMode (Std_Error.Handle, Error_Settings) = 0 then
-            AIO.Put_Line ("Unable to restore all terminal settings to originals.");
+            Write_Terminal_Line ("Unable to restore all terminal settings to originals.");
         end if;
 
         if Win.SetConsoleCP (Original_Input_CP) = 0 or else Win.SetConsoleOutputCP (Original_Output_CP) = 0 then
-            AIO.Put_Line ("Unable to restore original terminal code page.");
+            Write_Terminal_Line ("Unable to restore original terminal code page.");
         end if;
     end Shutdown;
 
-    procedure Print_Capabilities is
+    procedure Apply (Input : Input_Stream) is
     begin
-        AIO.Put_Line ("Printing capabilities.");
-    end Print_Capabilities;
+        if Win.SetConsoleMode(Input.Handle, Win.To_DWORD(Input.Settings)) = 0 then
+            Write_Terminal_Line ("Unable to change console modes: ERROR#" & Win.GetLastError'Image);
+        end if;
+    end Apply;
+
+    procedure Apply (Output : Output_Stream) is
+    begin
+        if Win.SetConsoleMode(Output.Handle, Win.To_DWORD(Output.Settings)) = 0 then
+            Write_Terminal_Line ("Unable to change console modes: ERROR# " & Win.GetLastError'Image);
+        end if;
+    end Apply;
 
     procedure Set (Setting : Input_Setting; Enabled : Boolean) is
     begin
@@ -246,5 +264,24 @@ package body Trendy_Terminal is
                 Apply(Std_Error);
         end case;
     end Set;
+
+    ---------------------------------------------------------------------------
+    -- Controls
+    ---------------------------------------------------------------------------
+
+    procedure Cursor_Left is
+    begin
+        Write_Terminal (Ada.Characters.Latin_1.ESC & '[' & 'D');
+    end Cursor_Left;
+
+    procedure Cursor_Right is
+    begin
+        Write_Terminal (Ada.Characters.Latin_1.ESC & '[' & 'C');
+    end Cursor_Right;
+
+    procedure Erase is
+    begin
+        Write_Terminal (Ada.Characters.Latin_1.ESC & '[' & 'X');
+    end Erase;
 
 end Trendy_Terminal;

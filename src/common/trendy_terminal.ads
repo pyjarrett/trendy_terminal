@@ -9,4 +9,9 @@ package Trendy_Terminal is
     procedure Set (Setting : Input_Setting; Enabled : Boolean);
     procedure Set (Setting : Output_Setting; Enabled : Boolean);
 
+    procedure Cursor_Left;
+    procedure Cursor_Right;
+
+    procedure Erase;
+
 end Trendy_Terminal;
