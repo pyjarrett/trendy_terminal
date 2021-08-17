@@ -1,4 +1,3 @@
-with Ada.Characters.Latin_1;
 with Ada.Text_IO;
 with Ada.Unchecked_Conversion;
 
@@ -105,6 +104,7 @@ package body Trendy_Terminal is
         function To_DWORD is new Ada.Unchecked_Conversion (Console_Input_Mode, DWORD);
         function To_DWORD is new Ada.Unchecked_Conversion (Console_Output_Mode, DWORD);
 
+        type LPVOID is new Interfaces.C.Strings.chars_ptr;
         type LPCVOID is new Interfaces.C.Strings.chars_ptr;
         type LPOVERLAPPED is new Interfaces.C.ptrdiff_t;
 
@@ -141,6 +141,18 @@ package body Trendy_Terminal is
     ---------------------------------------------------------------------------
     Std_Input             : Input_Stream;
     Std_Output, Std_Error : Output_Stream;
+
+    procedure Write_Terminal(C : Character) is
+        S       : constant String := (1 => C);
+        C_Array : aliased Interfaces.C.char_array := Interfaces.C.To_C(S);
+        Native  : aliased Interfaces.C.Strings.chars_ptr := Interfaces.C.Strings.To_Chars_Ptr(C_array'Unchecked_Access);
+        Written : aliased Win.DWORD;
+    begin
+        if Win.WriteFile (Std_Output.Handle, Win.LPCVOID(Native), S'Length, Written'Unchecked_Access, 0) = 0 then
+            AIO.Put_Line ("Write failed.");
+        end if;
+        Interfaces.C.Strings.Free(Native);
+    end Write_Terminal;
 
     procedure Write_Terminal(S : String) is
         Native : aliased Interfaces.C.Strings.chars_ptr := Interfaces.C.Strings.New_String(S);
@@ -265,23 +277,39 @@ package body Trendy_Terminal is
         end case;
     end Set;
 
-    ---------------------------------------------------------------------------
-    -- Controls
-    ---------------------------------------------------------------------------
 
-    procedure Cursor_Left is
-    begin
-        Write_Terminal (Ada.Characters.Latin_1.ESC & '[' & 'D');
-    end Cursor_Left;
+--  typedef struct _CONSOLE_READCONSOLE_CONTROL {
+--      ULONG nLength;
+--      ULONG nInitialChars;
+--      ULONG dwCtrlWakeupMask;
+--      ULONG dwControlKeyState;
+--  } CONSOLE_READCONSOLE_CONTROL, *PCONSOLE_READCONSOLE_CONTROL;
 
-    procedure Cursor_Right is
-    begin
-        Write_Terminal (Ada.Characters.Latin_1.ESC & '[' & 'C');
-    end Cursor_Right;
+    function ReadConsoleA (I               : Win.HANDLE;
+                           Buffer          : Win.LPVOID;
+                           Buffer_Size     : Win.DWORD;
+                           Characters_Read : Win.LPDWORD;
+                           Console_Control : Interfaces.C.ptrdiff_t) return Win.BOOL;
+    pragma Import (Stdcall, ReadConsoleA, "ReadConsoleA");
 
-    procedure Erase is
+    function Get_Input return String is
+        Buffer_Size  : constant := 512;
+        Buffer       : aliased Interfaces.C.char_array := (1 .. Interfaces.C.size_t(Buffer_Size) => Interfaces.C.nul);
+        Chars_Read   : aliased Win.DWORD;
+        use all type Interfaces.C.size_t;
     begin
-        Write_Terminal (Ada.Characters.Latin_1.ESC & '[' & 'X');
-    end Erase;
+        if ReadConsoleA (Std_Input.Handle, Win.LPVOID(Interfaces.C.Strings.To_Chars_Ptr(Buffer'Unchecked_Access)),
+                         Buffer_Size, Chars_Read'Unchecked_Access, 0) /= 0 then
+            Write_Terminal_Line("Read " & Chars_Read'Image);
+            return Interfaces.C.To_Ada(Buffer(1 .. Interfaces.C.size_t(Chars_Read) + 1));
+        else
+            return "";
+        end if;
+    end Get_Input;
+
+    function Get_Line return String is
+    begin
+        return Get_Input;
+    end Get_Line;
 
 end Trendy_Terminal;

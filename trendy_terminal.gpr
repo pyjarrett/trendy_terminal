@@ -1,7 +1,7 @@
 project Trendy_Terminal is
 
    for Library_Name use "Trendy_Terminal";
-   for Library_Version use "0.0.1";
+   for Library_Version use "0.0.2";
 
    Trendy_Terminal_Sources := ("src/common");
 

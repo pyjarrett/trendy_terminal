@@ -1,6 +1,6 @@
 name = "trendy_terminal"
 description = "Terminal options and setup"
-version = "0.0.1"
+version = "0.0.2"
 
 authors = ["Paul Jarrett"]
 maintainers = ["Paul Jarrett <jarrett.paul.young@gmail.com>"]

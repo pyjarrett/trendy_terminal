@@ -9,9 +9,13 @@ package Trendy_Terminal is
     procedure Set (Setting : Input_Setting; Enabled : Boolean);
     procedure Set (Setting : Output_Setting; Enabled : Boolean);
 
-    procedure Cursor_Left;
-    procedure Cursor_Right;
+    procedure Write_Terminal(C : Character);
+    procedure Write_Terminal(S : String);
+    procedure Write_Terminal_Line(S : String);
 
-    procedure Erase;
+    -- Gets an entire input line from one keypress.  E.g. all the characters
+    -- received for a controlling keypress, such as an arrow key.
+    function Get_Input return String;
+    function Get_Line return String;
 
 end Trendy_Terminal;
