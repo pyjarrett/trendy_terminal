@@ -5,7 +5,7 @@ with Ada.Unchecked_Conversion;
 
 with Interfaces.C.Strings;
 
---  with Trendy_Terminal.Input;
+with Trendy_Terminal.Input;
 
 package body Trendy_Terminal is
 
@@ -304,23 +304,22 @@ package body Trendy_Terminal is
     begin
         if ReadConsoleA (Std_Input.Handle, Win.LPVOID(Interfaces.C.Strings.To_Chars_Ptr(Buffer'Unchecked_Access)),
                          Buffer_Size, Chars_Read'Unchecked_Access, 0) /= 0 then
-            Write_Terminal_Line("Read " & Chars_Read'Image);
             return Interfaces.C.To_Ada(Buffer(1 .. Interfaces.C.size_t(Chars_Read) + 1));
         else
             return "";
         end if;
     end Get_Input;
 
-    type HKL is new Interfaces.C.ptrdiff_t;
-    type SHORT is new Interfaces.C.unsigned_short;
-    type DWORD is new Interfaces.C.unsigned_long;
-    function GetKeyboardLayout(ThreadId : DWORD) return HKL;
-    function GetCurrentThreadId return DWORD;
-    function VkKeyScanExA(I : Interfaces.C.int; A_HKL : HKL) return SHORT;
+    --  type HKL is new Interfaces.C.ptrdiff_t;
+    --  type SHORT is new Interfaces.C.unsigned_short;
+    --  type DWORD is new Interfaces.C.unsigned_long;
+    --  function GetKeyboardLayout(ThreadId : DWORD) return HKL;
+    --  function GetCurrentThreadId return DWORD;
+    --  function VkKeyScanExA(I : Interfaces.C.int; A_HKL : HKL) return SHORT;
 
-    pragma Import (Stdcall, GetKeyboardLayout, "GetKeyboardLayout");
-    pragma Import (Stdcall, GetCurrentThreadId, "GetCurrentThreadId");
-    pragma Import (Stdcall, VkKeyScanExA, "VkKeyScanExA");
+    --  pragma Import (Stdcall, GetKeyboardLayout, "GetKeyboardLayout");
+    --  pragma Import (Stdcall, GetCurrentThreadId, "GetCurrentThreadId");
+    --  pragma Import (Stdcall, VkKeyScanExA, "VkKeyScanExA");
 
     package Key_Maps is new Ada.Containers.Ordered_Maps (Key_Type => ASU.Unbounded_String,
                                                          Element_Type => Key,
@@ -426,11 +425,12 @@ package body Trendy_Terminal is
     function Get_Line return String is
         Input_Line : ASU.Unbounded_String;
         Input      : Interfaces.C.int;
-        Key        : SHORT;
+        --  Key        : SHORT;
         Key_Enter  : constant := 13;
         KM         : constant Key_Maps.Map := Make_Key_Map;
         MK         : constant Inverse_Key_Maps.Map := Make_Key_Lookup_Map;
-        -- L          : constant Trendy_Terminal.Input.Line;
+        L          : Trendy_Terminal.Input.Line;
+        package TTI renames Trendy_Terminal.Input;
         use all type Interfaces.C.int;
         use type ASU.Unbounded_String;
     begin
@@ -438,32 +438,43 @@ package body Trendy_Terminal is
             pragma Assert (Character'Size = 8);
             Input_Line := ASU.To_Unbounded_String(Get_Input);
 
-            Ada.Text_IO.Put_Line ("Got " & ASU.Length(Input_Line)'Image & " characters");
-            if KM.Contains(Input_Line) then
-                Ada.Text_IO.Put_Line ("Found input line" & KM.Element(Input_Line)'Image);
-            else
-                Ada.Text_IO.Put_Line ("Input line" & ASU.To_String(Input_Line));
-            end if;
+
+            --  Ada.Text_IO.Put_Line ("Got " & ASU.Length(Input_Line)'Image & " characters");
+            --  if KM.Contains(Input_Line) then
+            --      Ada.Text_IO.Put_Line ("Found input line" & KM.Element(Input_Line)'Image);
+            --  else
+            --      Ada.Text_IO.Put_Line ("Input line" & ASU.To_String(Input_Line));
+            --  end if;
 
             if MK(Key_Left) = Input_Line then
                 Ada.Text_IO.Put_Line ("Moving left");
+                Trendy_Terminal.Input.Move_Cursor(L, Trendy_Terminal.Input.Left);
             end if;
 
             if MK(Key_Right) = Input_Line then
                 Ada.Text_IO.Put_Line ("Moving right");
+                Trendy_Terminal.Input.Move_Cursor(L, Trendy_Terminal.Input.Right);
             end if;
 
-            for Index in 1 .. ASU.Length (Input_Line) loop
-                Input := Character'Pos(ASU.Element(Input_Line, Index));
 
+            if ASU.Length (Input_Line) = 1 then
+                Input := Character'Pos(ASU.Element(Input_Line, 1));
                 if Input = Key_Enter then
                     Ada.Text_IO.Put_Line ("exiting");
-                    return "";
+                    return TTI.Current(L);
                 end if;
+            end if;
 
-                Key := VkKeyScanExA (Input, GetKeyboardLayout(GetCurrentThreadId));
-                Ada.Text_IO.Put_Line ("Got key: " & Key'Image & "  " & Input'Image);
-            end loop;
+            if not KM.Contains(Input_Line) then
+                TTI.Insert (L, ASU.To_String(Input_Line));
+            end if;
+
+            --  for Index in 1 .. ASU.Length (Input_Line) loop
+            --
+
+                --  Key := VkKeyScanExA (Input, GetKeyboardLayout(GetCurrentThreadId));
+                --  Ada.Text_IO.Put_Line ("Got key: " & Key'Image & "  " & Input'Image);
+            --  end loop;
 
         end loop;
     end Get_Line;
