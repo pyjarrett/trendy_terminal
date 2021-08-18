@@ -1,4 +1,5 @@
-with Ada.Strings.Unbounded;
+with Ada.Characters.Latin_1;
+with Ada.Containers.Ordered_Maps;
 with Ada.Text_IO;
 with Ada.Unchecked_Conversion;
 
@@ -308,8 +309,6 @@ package body Trendy_Terminal is
         end if;
     end Get_Input;
 
-    package ASU renames Ada.Strings.Unbounded;
-
     type HKL is new Interfaces.C.ptrdiff_t;
     type SHORT is new Interfaces.C.unsigned_short;
     type DWORD is new Interfaces.C.unsigned_long;
@@ -321,19 +320,75 @@ package body Trendy_Terminal is
     pragma Import (Stdcall, GetCurrentThreadId, "GetCurrentThreadId");
     pragma Import (Stdcall, VkKeyScanExA, "VkKeyScanExA");
 
-    --  function getchar return Interfaces.C.int;
-    --  pragma Import (C, getchar);
+    package Key_Maps is new Ada.Containers.Ordered_Maps (Key_Type => ASU.Unbounded_String,
+                                                         Element_Type => Key,
+                                                         "<" => ASU."<",
+                                                         "=" => "=");
+
+    function Make_Key_Map return Key_Maps.Map is
+        KM : Key_Maps.Map;
+        use Ada.Characters;
+        function "+"(S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
+        use Ada.Characters.Latin_1;
+        use all type ASU.Unbounded_String;
+    begin
+        KM.Insert(ESC & (+"[A"), Key_Up);
+        KM.Insert(ESC & (+"[B"), Key_Down);
+        KM.Insert(ESC & (+"[C"), Key_Right);
+        KM.Insert(ESC & (+"[D"), Key_Left);
+        KM.Insert(ESC & (+"[H"), Key_Home);
+        KM.Insert(ESC & (+"[F"), Key_End);
+
+        KM.Insert(ESC & (+"[1;5A"), Key_Ctrl_Up);
+        KM.Insert(ESC & (+"[1;5B"), Key_Ctrl_Down);
+        KM.Insert(ESC & (+"[1;5C"), Key_Ctrl_Right);
+        KM.Insert(ESC & (+"[1;5D"), Key_Ctrl_Left);
+
+        KM.Insert(DEL & ASU.Null_Unbounded_String, Key_Backspace);
+        KM.Insert(SUB & ASU.Null_Unbounded_String, Key_Pause);
+
+        KM.Insert(ESC & (+"[2~"), Key_Insert);
+        KM.Insert(ESC & (+"[3~"), Key_Delete);
+        KM.Insert(ESC & (+"[5~"), Key_Page_Up);
+        KM.Insert(ESC & (+"[6~"), Key_Page_Down);
+
+        KM.Insert(ESC & (+"OP"), Key_F1);
+        KM.Insert(ESC & (+"OQ"), Key_F2);
+        KM.Insert(ESC & (+"OR"), Key_F3);
+        KM.Insert(ESC & (+"OS"), Key_F4);
+
+        KM.Insert(ESC & (+"[15~"), Key_F5);
+        KM.Insert(ESC & (+"[17~"), Key_F6);
+        KM.Insert(ESC & (+"[18~"), Key_F7);
+        KM.Insert(ESC & (+"[19~"), Key_F8);
+
+        KM.Insert(ESC & (+"[20~"), Key_F9);
+        KM.Insert(ESC & (+"[21~"), Key_F10);
+        KM.Insert(ESC & (+"[23~"), Key_F11);
+        KM.Insert(ESC & (+"[24~"), Key_F12);
+
+        return KM;
+    end Make_Key_Map;
 
     function Get_Line return String is
         Input_Line : ASU.Unbounded_String;
         Input      : Interfaces.C.int;
         Key        : SHORT;
-        Key_Enter    : constant := 13;
+        Key_Enter  : constant := 13;
+        KM         : constant Key_Maps.Map := Make_Key_Map;
         use all type Interfaces.C.int;
     begin
         loop
             pragma Assert (Character'Size = 8);
             Input_Line := ASU.To_Unbounded_String(Get_Input);
+
+            Ada.Text_IO.Put_Line ("Got " & ASU.Length(Input_Line)'Image & " characters");
+            if KM.Contains(Input_Line) then
+                Ada.Text_IO.Put_Line ("Found input line" & KM.Element(Input_Line)'Image);
+            else
+                Ada.Text_IO.Put_Line ("Input line" & ASU.To_String(Input_Line));
+            end if;
+
             for Index in 1 .. ASU.Length (Input_Line) loop
                 Input := Character'Pos(ASU.Element(Input_Line, Index));
 
@@ -345,31 +400,7 @@ package body Trendy_Terminal is
                 Key := VkKeyScanExA (Input, GetKeyboardLayout(GetCurrentThreadId));
                 Ada.Text_IO.Put_Line ("Got key: " & Key'Image & "  " & Input'Image);
             end loop;
+
         end loop;
     end Get_Line;
-
-
-    -- Readline essentials
-    -- https://www.gnu.org/software/bash/manual/html_node/Readline-Interaction.html
-    -- https://github.com/AmokHuginnsson/replxx/blob/master/examples/cxx-api.cxx
-    --  function Get_Line2 return String is
-    --      Current_Line : ASU.Unbounded_String;
-    --      Next_Input   : Interfaces.C.int;
-    --      Key          : SHORT;
-    --      Key_Enter    : constant := 13;
-    --      use all type Interfaces.C.int;
-    --  begin
-    --      loop
-    --          Next_Input := getchar;
-    --          if Next_Input = Key_Enter then
-    --              Ada.Text_IO.Put_Line ("exiting");
-    --              exit;
-    --          end if;
-    --          Key := VkKeyScanExA (Next_Input, GetKeyboardLayout(GetCurrentThreadId));
-    --          Ada.Text_IO.Put_Line ("Got key: " & Key'Image & "  " & Next_Input'Image);
-    --      end loop;
-    --
-    --      return ASU.To_String(Current_Line);
-    --  end Get_Line2;
-
 end Trendy_Terminal;
