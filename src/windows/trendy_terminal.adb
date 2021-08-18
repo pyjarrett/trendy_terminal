@@ -6,6 +6,7 @@ with Ada.Unchecked_Conversion;
 with Interfaces.C.Strings;
 
 with Trendy_Terminal.Input;
+with Trendy_Terminal.VT100;
 
 package body Trendy_Terminal is
 
@@ -447,26 +448,30 @@ package body Trendy_Terminal is
             --  end if;
 
             if MK(Key_Left) = Input_Line then
-                Ada.Text_IO.Put_Line ("Moving left");
-                Trendy_Terminal.Input.Move_Cursor(L, Trendy_Terminal.Input.Left);
+                TTI.Move_Cursor(L, Trendy_Terminal.Input.Left);
             end if;
 
             if MK(Key_Right) = Input_Line then
-                Ada.Text_IO.Put_Line ("Moving right");
-                Trendy_Terminal.Input.Move_Cursor(L, Trendy_Terminal.Input.Right);
+                TTI.Move_Cursor(L, Trendy_Terminal.Input.Right);
             end if;
 
+            if MK(Key_Backspace) = Input_Line then
+                TTI.Backspace (L);
+                VT100.Clear_Line;
+                Write_Terminal(TTI.Current(L));
+            end if;
 
             if ASU.Length (Input_Line) = 1 then
                 Input := Character'Pos(ASU.Element(Input_Line, 1));
                 if Input = Key_Enter then
-                    Ada.Text_IO.Put_Line ("exiting");
                     return TTI.Current(L);
                 end if;
             end if;
 
             if not KM.Contains(Input_Line) then
                 TTI.Insert (L, ASU.To_String(Input_Line));
+                VT100.Clear_Line;
+                Write_Terminal(TTI.Current(L));
             end if;
 
             --  for Index in 1 .. ASU.Length (Input_Line) loop

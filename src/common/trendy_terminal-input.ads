@@ -6,6 +6,7 @@ package Trendy_Terminal.Input is
     procedure Move_Cursor (Self : in out Line; Direction : Cursor_Direction);
 
     procedure Insert (Self : in out Line; S : String);
+    procedure Backspace (Self : in out Line);
 
     procedure Clear (Self : in out Line);
     function Current (Self : Line) return String;

@@ -17,4 +17,10 @@ package body Trendy_Terminal.VT100 is
         Write_Terminal (Ada.Characters.Latin_1.ESC & '[' & 'X');
     end Erase;
 
+    procedure Clear_Line is
+    begin
+        Write_Terminal (Ada.Characters.Latin_1.ESC & '[' & 'G');
+        Write_Terminal (Ada.Characters.Latin_1.ESC & '[' & 'K');
+    end Clear_Line;
+
 end Trendy_Terminal.VT100;

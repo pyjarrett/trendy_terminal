@@ -24,6 +24,15 @@ package body Trendy_Terminal.Input is
         Self.Cursor := Self.Cursor + S'Length;
     end Insert;
 
+    procedure Backspace (Self : in out Line) is
+    begin
+        if Self.Cursor = 1 then
+            return;
+        end if;
+        ASU.Delete(Self.Contents, Self.Cursor - 1, Self.Cursor - 1);
+        Move_Cursor(Self, Left);
+    end Backspace;
+
     procedure Clear (Self : in out Line) is
     begin
         Self.Cursor := 1;
