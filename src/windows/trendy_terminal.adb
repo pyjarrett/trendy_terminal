@@ -5,6 +5,8 @@ with Ada.Unchecked_Conversion;
 
 with Interfaces.C.Strings;
 
+--  with Trendy_Terminal.Input;
+
 package body Trendy_Terminal is
 
     package AIO renames Ada.Text_IO;
@@ -325,6 +327,11 @@ package body Trendy_Terminal is
                                                          "<" => ASU."<",
                                                          "=" => "=");
 
+    package Inverse_Key_Maps is new Ada.Containers.Ordered_Maps (Key_Type => Key,
+                                                         Element_Type => ASU.Unbounded_String,
+                                                         "<" => "<",
+                                                         "=" => ASU."=");
+
     function Make_Key_Map return Key_Maps.Map is
         KM : Key_Maps.Map;
         use Ada.Characters;
@@ -370,13 +377,62 @@ package body Trendy_Terminal is
         return KM;
     end Make_Key_Map;
 
+    function Make_Key_Lookup_Map return Inverse_Key_Maps.Map is
+        KM : Inverse_Key_Maps.Map;
+        use Ada.Characters;
+        function "+"(S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
+        use Ada.Characters.Latin_1;
+        use all type ASU.Unbounded_String;
+    begin
+        KM.Insert(Key_Up,    ESC & (+"[A"));
+        KM.Insert(Key_Down,  ESC & (+"[B"));
+        KM.Insert(Key_Right, ESC & (+"[C"));
+        KM.Insert(Key_Left,  ESC & (+"[D"));
+        KM.Insert(Key_Home,  ESC & (+"[H"));
+        KM.Insert(Key_End,   ESC & (+"[F"));
+
+        KM.Insert(Key_Ctrl_Up,    ESC & (+"[1;5A"));
+        KM.Insert(Key_Ctrl_Down,  ESC & (+"[1;5B"));
+        KM.Insert(Key_Ctrl_Right, ESC & (+"[1;5C"));
+        KM.Insert(Key_Ctrl_Left,  ESC & (+"[1;5D"));
+
+        KM.Insert(Key_Backspace, DEL & (+""));
+        KM.Insert(Key_Pause,     SUB & (+""));
+
+        KM.Insert(Key_Insert,    ESC & (+"[2~"));
+        KM.Insert(Key_Delete,    ESC & (+"[3~"));
+        KM.Insert(Key_Page_Up,   ESC & (+"[5~"));
+        KM.Insert(Key_Page_Down, ESC & (+"[6~"));
+
+        KM.Insert(Key_F1, ESC & (+"OP"));
+        KM.Insert(Key_F2, ESC & (+"OQ"));
+        KM.Insert(Key_F3, ESC & (+"OR"));
+        KM.Insert(Key_F4, ESC & (+"OS"));
+
+        KM.Insert(Key_F5, ESC & (+"[15~"));
+        KM.Insert(Key_F6, ESC & (+"[17~"));
+        KM.Insert(Key_F7, ESC & (+"[18~"));
+        KM.Insert(Key_F8, ESC & (+"[19~"));
+
+        KM.Insert(Key_F9,  ESC & (+"[20~"));
+        KM.Insert(Key_F10, ESC & (+"[21~"));
+        KM.Insert(Key_F11, ESC & (+"[23~"));
+        KM.Insert(Key_F12, ESC & (+"[24~"));
+
+        return KM;
+    end Make_Key_Lookup_Map;
+
+
     function Get_Line return String is
         Input_Line : ASU.Unbounded_String;
         Input      : Interfaces.C.int;
         Key        : SHORT;
         Key_Enter  : constant := 13;
         KM         : constant Key_Maps.Map := Make_Key_Map;
+        MK         : constant Inverse_Key_Maps.Map := Make_Key_Lookup_Map;
+        -- L          : constant Trendy_Terminal.Input.Line;
         use all type Interfaces.C.int;
+        use type ASU.Unbounded_String;
     begin
         loop
             pragma Assert (Character'Size = 8);
@@ -387,6 +443,14 @@ package body Trendy_Terminal is
                 Ada.Text_IO.Put_Line ("Found input line" & KM.Element(Input_Line)'Image);
             else
                 Ada.Text_IO.Put_Line ("Input line" & ASU.To_String(Input_Line));
+            end if;
+
+            if MK(Key_Left) = Input_Line then
+                Ada.Text_IO.Put_Line ("Moving left");
+            end if;
+
+            if MK(Key_Right) = Input_Line then
+                Ada.Text_IO.Put_Line ("Moving right");
             end if;
 
             for Index in 1 .. ASU.Length (Input_Line) loop
