@@ -354,9 +354,8 @@ package body Trendy_Terminal is
 
             --  for Index in 1 .. ASU.Length (Input_Line) loop
             --
-
-                --  Key := VkKeyScanExA (Input, GetKeyboardLayout(GetCurrentThreadId));
-                --  Ada.Text_IO.Put_Line ("Got key: " & Key'Image & "  " & Input'Image);
+            --  Key := VkKeyScanExA (Input, GetKeyboardLayout(GetCurrentThreadId));
+            --  Ada.Text_IO.Put_Line ("Got key: " & Key'Image & "  " & Input'Image);
             --  end loop;
 
         end loop;
