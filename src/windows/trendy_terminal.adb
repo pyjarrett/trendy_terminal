@@ -122,7 +122,6 @@ package body Trendy_Terminal is
     package Win renames Windows_Bindings;
     use type Win.BOOL;
     use type Win.HANDLE;
-    ---------------------------------------------------------------------------
 
     ---------------------------------------------------------------------------
     -- Original settings
@@ -281,14 +280,6 @@ package body Trendy_Terminal is
         end case;
     end Set;
 
-
---  typedef struct _CONSOLE_READCONSOLE_CONTROL {
---      ULONG nLength;
---      ULONG nInitialChars;
---      ULONG dwCtrlWakeupMask;
---      ULONG dwControlKeyState;
---  } CONSOLE_READCONSOLE_CONTROL, *PCONSOLE_READCONSOLE_CONTROL;
-
     function ReadConsoleA (I               : Win.HANDLE;
                            Buffer          : Win.LPVOID;
                            Buffer_Size     : Win.DWORD;
@@ -310,17 +301,6 @@ package body Trendy_Terminal is
         end if;
     end Get_Input;
 
-    --  type HKL is new Interfaces.C.ptrdiff_t;
-    --  type SHORT is new Interfaces.C.unsigned_short;
-    --  type DWORD is new Interfaces.C.unsigned_long;
-    --  function GetKeyboardLayout(ThreadId : DWORD) return HKL;
-    --  function GetCurrentThreadId return DWORD;
-    --  function VkKeyScanExA(I : Interfaces.C.int; A_HKL : HKL) return SHORT;
-
-    --  pragma Import (Stdcall, GetKeyboardLayout, "GetKeyboardLayout");
-    --  pragma Import (Stdcall, GetCurrentThreadId, "GetCurrentThreadId");
-    --  pragma Import (Stdcall, VkKeyScanExA, "VkKeyScanExA");
-
     function Get_Line return String is
         package TTI renames Trendy_Terminal.Input;
 
@@ -334,9 +314,9 @@ package body Trendy_Terminal is
         use all type Interfaces.C.int;
     begin
         loop
+            -- TODO: Support full utf-8.  Only ASCII is supported for now.
             pragma Assert (Character'Size = 8);
             Input_Line := ASU.To_Unbounded_String(Get_Input);
-
 
             --  Ada.Text_IO.Put_Line ("Got " & ASU.Length(Input_Line)'Image & " characters");
             --  if KM.Contains(Input_Line) then
