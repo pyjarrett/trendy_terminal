@@ -18,4 +18,6 @@ package Trendy_Terminal.VT100 is
 
     procedure Clear_Line;
 
+    procedure Report_Cursor_Position;
+
 end Trendy_Terminal.VT100;

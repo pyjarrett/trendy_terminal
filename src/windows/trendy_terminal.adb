@@ -1,3 +1,4 @@
+with Ada.Strings.Fixed;
 with Ada.Text_IO;
 with Ada.Unchecked_Conversion;
 
@@ -286,6 +287,24 @@ package body Trendy_Terminal is
                            Characters_Read : Win.LPDWORD;
                            Console_Control : Interfaces.C.ptrdiff_t) return Win.BOOL;
     pragma Import (Stdcall, ReadConsoleA, "ReadConsoleA");
+
+
+    function Get_Cursor_Position return Cursor_Position is
+    begin
+        VT100.Report_Cursor_Position;
+
+        declare
+            -- The cursor position is reported as
+            -- ESC [ ROW ; COL R
+            Result : constant String := Get_Input;
+            Semicolon_Index : constant Natural := Ada.Strings.Fixed.Index(Result, ";", 1);
+            Row : constant Integer := Integer'Value(Result(3 .. Semicolon_Index - 1));
+            Col : constant Integer := Integer'Value(Result(Semicolon_Index + 1 .. Result'Length - 1));
+        begin
+            return Cursor_Position'(Row => Row, Col => Col);
+        end;
+
+    end Get_Cursor_Position;
 
     function Get_Input return String is
         Buffer_Size  : constant := 512;

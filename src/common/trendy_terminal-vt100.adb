@@ -23,4 +23,9 @@ package body Trendy_Terminal.VT100 is
         Write_Terminal (Ada.Characters.Latin_1.ESC & '[' & 'K');
     end Clear_Line;
 
+    procedure Report_Cursor_Position is
+    begin
+        Write_Terminal (Ada.Characters.Latin_1.ESC & '[' & "6n");
+    end Report_Cursor_Position;
+
 end Trendy_Terminal.VT100;

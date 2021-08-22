@@ -20,6 +20,13 @@ package Trendy_Terminal is
     function Get_Input return String;
     function Get_Line return String;
 
+    type Cursor_Position is record
+        Row : Integer;
+        Col : Integer;
+    end record;
+
+    function Get_Cursor_Position return Cursor_Position;
+
     type Key is (Key_Up, Key_Left, Key_Right, Key_Down,
                   Key_Ctrl_Up, Key_Ctrl_Left, Key_Ctrl_Right, Key_Ctrl_Down,
                   Key_F1, Key_F2, Key_F3, Key_F4,
