@@ -11,6 +11,8 @@ with Trendy_Terminal.VT100;
 package body Trendy_Terminal is
 
     package AIO renames Ada.Text_IO;
+    function "+"(S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
+    use all type ASU.Unbounded_String;
 
     ---------------------------------------------------------------------------
     -- Win32 API functions
@@ -337,87 +339,86 @@ package body Trendy_Terminal is
         use Ada.Characters;
         function "+"(S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
         use Ada.Characters.Latin_1;
-        use all type ASU.Unbounded_String;
     begin
-        KM.Insert(ESC & (+"[A"), Key_Up);
-        KM.Insert(ESC & (+"[B"), Key_Down);
-        KM.Insert(ESC & (+"[C"), Key_Right);
-        KM.Insert(ESC & (+"[D"), Key_Left);
-        KM.Insert(ESC & (+"[H"), Key_Home);
-        KM.Insert(ESC & (+"[F"), Key_End);
+        KM.Insert(CSI & (+"A"), Key_Up);
+        KM.Insert(CSI & (+"B"), Key_Down);
+        KM.Insert(CSI & (+"C"), Key_Right);
+        KM.Insert(CSI & (+"D"), Key_Left);
+        KM.Insert(CSI & (+"H"), Key_Home);
+        KM.Insert(CSI & (+"F"), Key_End);
 
-        KM.Insert(ESC & (+"[1;5A"), Key_Ctrl_Up);
-        KM.Insert(ESC & (+"[1;5B"), Key_Ctrl_Down);
-        KM.Insert(ESC & (+"[1;5C"), Key_Ctrl_Right);
-        KM.Insert(ESC & (+"[1;5D"), Key_Ctrl_Left);
+        KM.Insert(CSI & (+"1;5A"), Key_Ctrl_Up);
+        KM.Insert(CSI & (+"1;5B"), Key_Ctrl_Down);
+        KM.Insert(CSI & (+"1;5C"), Key_Ctrl_Right);
+        KM.Insert(CSI & (+"1;5D"), Key_Ctrl_Left);
 
         KM.Insert(DEL & ASU.Null_Unbounded_String, Key_Backspace);
         KM.Insert(SUB & ASU.Null_Unbounded_String, Key_Pause);
 
-        KM.Insert(ESC & (+"[2~"), Key_Insert);
-        KM.Insert(ESC & (+"[3~"), Key_Delete);
-        KM.Insert(ESC & (+"[5~"), Key_Page_Up);
-        KM.Insert(ESC & (+"[6~"), Key_Page_Down);
+        KM.Insert(CSI & (+"2~"), Key_Insert);
+        KM.Insert(CSI & (+"3~"), Key_Delete);
+        KM.Insert(CSI & (+"5~"), Key_Page_Up);
+        KM.Insert(CSI & (+"6~"), Key_Page_Down);
 
         KM.Insert(ESC & (+"OP"), Key_F1);
         KM.Insert(ESC & (+"OQ"), Key_F2);
         KM.Insert(ESC & (+"OR"), Key_F3);
         KM.Insert(ESC & (+"OS"), Key_F4);
 
-        KM.Insert(ESC & (+"[15~"), Key_F5);
-        KM.Insert(ESC & (+"[17~"), Key_F6);
-        KM.Insert(ESC & (+"[18~"), Key_F7);
-        KM.Insert(ESC & (+"[19~"), Key_F8);
+        KM.Insert(CSI & (+"15~"), Key_F5);
+        KM.Insert(CSI & (+"17~"), Key_F6);
+        KM.Insert(CSI & (+"18~"), Key_F7);
+        KM.Insert(CSI & (+"19~"), Key_F8);
 
-        KM.Insert(ESC & (+"[20~"), Key_F9);
-        KM.Insert(ESC & (+"[21~"), Key_F10);
-        KM.Insert(ESC & (+"[23~"), Key_F11);
-        KM.Insert(ESC & (+"[24~"), Key_F12);
+        KM.Insert(CSI & (+"20~"), Key_F9);
+        KM.Insert(CSI & (+"21~"), Key_F10);
+        KM.Insert(CSI & (+"23~"), Key_F11);
+        KM.Insert(CSI & (+"24~"), Key_F12);
 
         return KM;
     end Make_Key_Map;
 
+    CSI : constant ASU.Unbounded_String := Ada.Characters.Latin_1.ESC & (+"[");
+
     function Make_Key_Lookup_Map return Inverse_Key_Maps.Map is
         KM : Inverse_Key_Maps.Map;
         use Ada.Characters;
-        function "+"(S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
         use Ada.Characters.Latin_1;
-        use all type ASU.Unbounded_String;
     begin
-        KM.Insert(Key_Up,    ESC & (+"[A"));
-        KM.Insert(Key_Down,  ESC & (+"[B"));
-        KM.Insert(Key_Right, ESC & (+"[C"));
-        KM.Insert(Key_Left,  ESC & (+"[D"));
-        KM.Insert(Key_Home,  ESC & (+"[H"));
-        KM.Insert(Key_End,   ESC & (+"[F"));
+        KM.Insert(Key_Up,    CSI & (+"A"));
+        KM.Insert(Key_Down,  CSI & (+"B"));
+        KM.Insert(Key_Right, CSI & (+"C"));
+        KM.Insert(Key_Left,  CSI & (+"D"));
+        KM.Insert(Key_Home,  CSI & (+"H"));
+        KM.Insert(Key_End,   CSI & (+"F"));
 
-        KM.Insert(Key_Ctrl_Up,    ESC & (+"[1;5A"));
-        KM.Insert(Key_Ctrl_Down,  ESC & (+"[1;5B"));
-        KM.Insert(Key_Ctrl_Right, ESC & (+"[1;5C"));
-        KM.Insert(Key_Ctrl_Left,  ESC & (+"[1;5D"));
+        KM.Insert(Key_Ctrl_Up,    CSI & (+"1;5A"));
+        KM.Insert(Key_Ctrl_Down,  CSI & (+"1;5B"));
+        KM.Insert(Key_Ctrl_Right, CSI & (+"1;5C"));
+        KM.Insert(Key_Ctrl_Left,  CSI & (+"1;5D"));
 
         KM.Insert(Key_Backspace, DEL & (+""));
         KM.Insert(Key_Pause,     SUB & (+""));
 
-        KM.Insert(Key_Insert,    ESC & (+"[2~"));
-        KM.Insert(Key_Delete,    ESC & (+"[3~"));
-        KM.Insert(Key_Page_Up,   ESC & (+"[5~"));
-        KM.Insert(Key_Page_Down, ESC & (+"[6~"));
+        KM.Insert(Key_Insert,    CSI & (+"2~"));
+        KM.Insert(Key_Delete,    CSI & (+"3~"));
+        KM.Insert(Key_Page_Up,   CSI & (+"5~"));
+        KM.Insert(Key_Page_Down, CSI & (+"6~"));
 
         KM.Insert(Key_F1, ESC & (+"OP"));
         KM.Insert(Key_F2, ESC & (+"OQ"));
         KM.Insert(Key_F3, ESC & (+"OR"));
         KM.Insert(Key_F4, ESC & (+"OS"));
 
-        KM.Insert(Key_F5, ESC & (+"[15~"));
-        KM.Insert(Key_F6, ESC & (+"[17~"));
-        KM.Insert(Key_F7, ESC & (+"[18~"));
-        KM.Insert(Key_F8, ESC & (+"[19~"));
+        KM.Insert(Key_F5, CSI & (+"15~"));
+        KM.Insert(Key_F6, CSI & (+"17~"));
+        KM.Insert(Key_F7, CSI & (+"18~"));
+        KM.Insert(Key_F8, CSI & (+"19~"));
 
-        KM.Insert(Key_F9,  ESC & (+"[20~"));
-        KM.Insert(Key_F10, ESC & (+"[21~"));
-        KM.Insert(Key_F11, ESC & (+"[23~"));
-        KM.Insert(Key_F12, ESC & (+"[24~"));
+        KM.Insert(Key_F9,  CSI & (+"20~"));
+        KM.Insert(Key_F10, CSI & (+"21~"));
+        KM.Insert(Key_F11, CSI & (+"23~"));
+        KM.Insert(Key_F12, CSI & (+"24~"));
 
         return KM;
     end Make_Key_Lookup_Map;
@@ -433,7 +434,6 @@ package body Trendy_Terminal is
         L          : Trendy_Terminal.Input.Line;
         package TTI renames Trendy_Terminal.Input;
         use all type Interfaces.C.int;
-        use type ASU.Unbounded_String;
     begin
         loop
             pragma Assert (Character'Size = 8);
