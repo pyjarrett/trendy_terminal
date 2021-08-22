@@ -1,3 +1,5 @@
+with Ada.Containers.Ordered_Maps;
+
 package Trendy_Terminal.Input is
 
     type Line is private;
@@ -10,6 +12,23 @@ package Trendy_Terminal.Input is
 
     procedure Clear (Self : in out Line);
     function Current (Self : Line) return String;
+
+    ---------------------------------------------------------------------------
+    -- Input Mapping
+    ---------------------------------------------------------------------------
+
+    package Key_Maps is new Ada.Containers.Ordered_Maps (Key_Type => ASU.Unbounded_String,
+                                                         Element_Type => Key,
+                                                         "<" => ASU."<",
+                                                         "=" => "=");
+
+    package Inverse_Key_Maps is new Ada.Containers.Ordered_Maps (Key_Type => Key,
+                                                         Element_Type => ASU.Unbounded_String,
+                                                         "<" => "<",
+                                                         "=" => ASU."=");
+
+    function Make_Key_Map return Key_Maps.Map;
+    function Make_Key_Lookup_Map return Inverse_Key_Maps.Map;
 
 private
 
