@@ -1,4 +1,5 @@
-
+-- Platform agnostic VT100 commands.
+--
 -- ECMA-48 (ISO 6429)
 -- C0 (7-bit) control codes
 -- C1 (8-bit) control codes

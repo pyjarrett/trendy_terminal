@@ -1,6 +1,7 @@
 with Ada.Strings.Unbounded;
 
 package Trendy_Terminal is
+    package ASU renames Ada.Strings.Unbounded;
 
     function Init return Boolean;
     procedure Shutdown;
@@ -36,16 +37,4 @@ package Trendy_Terminal is
                   Key_Home, Key_End,
                   Key_Insert, Key_Delete,
                   Key_Page_Up, Key_Page_Down);
-
-    type Key_Style is (Key_Style_Input, Key_Style_Special);
-
-    package ASU renames Ada.Strings.Unbounded;
-    type Key_Press (Style : Key_Style) is record
-        case Style is
-            when Key_Style_Input =>
-                Input : ASU.Unbounded_String;
-            when Key_Style_Special =>
-                Pressed : Key;
-        end case;
-    end record;
 end Trendy_Terminal;

@@ -1,5 +1,6 @@
 with Ada.Containers.Ordered_Maps;
 
+-- Ties together input to associated VT100 commands.
 package Trendy_Terminal.Input is
 
     type Line is private;
