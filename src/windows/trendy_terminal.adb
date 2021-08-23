@@ -195,9 +195,9 @@ package body Trendy_Terminal is
         return Win.SetConsoleCP (Win.CP_UTF8) /= 0 and then Win.SetConsoleOutputCP (Win.CP_UTF8) /= 0;
     end Enable_UTF8;
 
+    -- Initializes and captures the original settings for the terminal so they can
+    -- be restored when the system is shutdown.
     function Init return Boolean is
-        -- Initializes and captures the original settings for the terminal so they can
-        -- be restored when the system is shutdown.
     begin
         Std_Output.Handle := Win.GetStdHandle (Win.STD_OUTPUT_HANDLE);
         Std_Input.Handle  := Win.GetStdHandle (Win.STD_INPUT_HANDLE);
@@ -288,7 +288,6 @@ package body Trendy_Terminal is
                            Console_Control : Interfaces.C.ptrdiff_t) return Win.BOOL;
     pragma Import (Stdcall, ReadConsoleA, "ReadConsoleA");
 
-
     function Get_Cursor_Position return Cursor_Position is
     begin
         VT100.Report_Cursor_Position;
@@ -303,9 +302,10 @@ package body Trendy_Terminal is
         begin
             return Cursor_Position'(Row => Row, Col => Col);
         end;
-
     end Get_Cursor_Position;
 
+    -- Gets an entire input line from one keypress.  E.g. all the characters
+    -- received for a controlling keypress, such as an arrow key.
     function Get_Input return String is
         Buffer_Size  : constant := 512;
         Buffer       : aliased Interfaces.C.char_array := (1 .. Interfaces.C.size_t(Buffer_Size) => Interfaces.C.nul);
@@ -320,29 +320,24 @@ package body Trendy_Terminal is
         end if;
     end Get_Input;
 
+    -- Processes the next line of input in according to completion, formatting,
+    -- and hinting callbacks.
+    --
+    -- TODO: Support full utf-8.  Only ASCII is supported for now.
     function Get_Line return String is
         package TTI renames Trendy_Terminal.Input;
+        use all type Interfaces.C.int;
 
         Input_Line : ASU.Unbounded_String;
         Input      : Interfaces.C.int;
-        --  Key        : SHORT;
         Key_Enter  : constant := 13;
         KM         : constant TTI.Key_Maps.Map := TTI.Make_Key_Map;
         MK         : constant TTI.Inverse_Key_Maps.Map := TTI.Make_Key_Lookup_Map;
         L          : Trendy_Terminal.Input.Line;
-        use all type Interfaces.C.int;
     begin
         loop
-            -- TODO: Support full utf-8.  Only ASCII is supported for now.
             pragma Assert (Character'Size = 8);
             Input_Line := ASU.To_Unbounded_String(Get_Input);
-
-            --  Ada.Text_IO.Put_Line ("Got " & ASU.Length(Input_Line)'Image & " characters");
-            --  if KM.Contains(Input_Line) then
-            --      Ada.Text_IO.Put_Line ("Found input line" & KM.Element(Input_Line)'Image);
-            --  else
-            --      Ada.Text_IO.Put_Line ("Input line" & ASU.To_String(Input_Line));
-            --  end if;
 
             if MK(Key_Left) = Input_Line then
                 TTI.Move_Cursor(L, Trendy_Terminal.Input.Left);
@@ -370,13 +365,6 @@ package body Trendy_Terminal is
                 VT100.Clear_Line;
                 Write_Terminal(TTI.Current(L));
             end if;
-
-            --  for Index in 1 .. ASU.Length (Input_Line) loop
-            --
-            --  Key := VkKeyScanExA (Input, GetKeyboardLayout(GetCurrentThreadId));
-            --  Ada.Text_IO.Put_Line ("Got key: " & Key'Image & "  " & Input'Image);
-            --  end loop;
-
         end loop;
     end Get_Line;
 end Trendy_Terminal;
