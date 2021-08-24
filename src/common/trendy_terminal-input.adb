@@ -101,6 +101,8 @@ package body Trendy_Terminal.Input is
         KM.Insert(VT100.CSI & (+"23~"), Key_F11);
         KM.Insert(VT100.CSI & (+"24~"), Key_F12);
 
+        KM.Insert(Ada.Characters.Latin_1.HT & (+""), Key_Tab);
+
         return KM;
     end Make_Key_Map;
 
@@ -143,6 +145,8 @@ package body Trendy_Terminal.Input is
         KM.Insert(Key_F10, VT100.CSI & (+"21~"));
         KM.Insert(Key_F11, VT100.CSI & (+"23~"));
         KM.Insert(Key_F12, VT100.CSI & (+"24~"));
+
+        KM.Insert(Key_Tab, Ada.Characters.Latin_1.HT & (+""));
 
         return KM;
     end Make_Key_Lookup_Map;

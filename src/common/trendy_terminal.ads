@@ -38,5 +38,6 @@ package Trendy_Terminal is
                   Key_Backspace, Key_Pause, Key_Escape,
                   Key_Home, Key_End,
                   Key_Insert, Key_Delete,
-                  Key_Page_Up, Key_Page_Down);
+                  Key_Page_Up, Key_Page_Down,
+                  Key_Tab);
 end Trendy_Terminal;
