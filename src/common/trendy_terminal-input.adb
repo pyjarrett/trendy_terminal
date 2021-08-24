@@ -43,6 +43,17 @@ package body Trendy_Terminal.Input is
         Move_Cursor(Self, Left);
     end Backspace;
 
+    procedure Delete (Self : in out Line) is
+    begin
+        if ASU.Length (Self.Contents) > 0 and then Self.Cursor <= ASU.Length(Self.Contents) then
+            ASU.Delete (Self.Contents, Self.Cursor, Self.Cursor);
+
+            if Self.Cursor > ASU.Length (Self.Contents) + 1 then
+                Move_Cursor (Self, Left);
+            end if;
+        end if;
+    end Delete;
+
     procedure Clear (Self : in out Line) is
     begin
         Self.Cursor := 1;

@@ -11,6 +11,7 @@ package Trendy_Terminal.Input is
 
     procedure Insert (Self : in out Line; S : String);
     procedure Backspace (Self : in out Line);
+    procedure Delete (Self : in out Line);
 
     procedure Clear (Self : in out Line);
     function Current (Self : Line) return String;

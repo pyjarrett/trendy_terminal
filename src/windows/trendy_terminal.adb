@@ -425,6 +425,8 @@ package body Trendy_Terminal is
                 TTI.Move_Cursor(L, Trendy_Terminal.Input.Right);
             elsif MK(Key_Backspace) = Input_Line then
                 TTI.Backspace (L);
+            elsif MK(Key_Delete) = Input_Line then
+                TTI.Delete (L);
             elsif ASU.Length (Input_Line) = 1 then
                 Input := Character'Pos(ASU.Element(Input_Line, 1));
 
