@@ -16,7 +16,7 @@ package body Trendy_Terminal.Input is
                     VT100.Cursor_Left;
                 end if;
             when Right =>
-                if Self.Cursor < ASU.Length (Self.Contents) then
+                if Self.Cursor <= ASU.Length (Self.Contents) then
                     Self.Cursor := Self.Cursor + 1;
                     VT100.Cursor_Right;
                 end if;
