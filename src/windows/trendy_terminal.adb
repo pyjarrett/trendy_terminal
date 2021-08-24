@@ -405,8 +405,6 @@ package body Trendy_Terminal is
 
         loop
             Print_Line (Debug_Pos, TTI.Cursor_Index(L)'Image);
-            
-
 
             -- Clear anything which has been printed and then print the current
             -- state of the line.
