@@ -1,3 +1,6 @@
 obj/
 lib/
 alire/
+config/
+bin/
+lib/
