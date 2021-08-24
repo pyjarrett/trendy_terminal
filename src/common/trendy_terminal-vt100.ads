@@ -1,3 +1,5 @@
+with Ada.Characters.Latin_1;
+
 -- Platform agnostic VT100 commands.
 --
 -- ECMA-48 (ISO 6429)
@@ -11,6 +13,7 @@
 -- https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
 -- https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 package Trendy_Terminal.VT100 is
+    CSI : constant String := Ada.Characters.Latin_1.ESC & "[";
 
     procedure Cursor_Left;
     procedure Cursor_Right;
@@ -20,5 +23,7 @@ package Trendy_Terminal.VT100 is
     procedure Clear_Line;
 
     procedure Report_Cursor_Position;
+
+    procedure Position_Cursor (C : Cursor_Position);
 
 end Trendy_Terminal.VT100;

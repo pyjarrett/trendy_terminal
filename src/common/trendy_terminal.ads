@@ -19,6 +19,10 @@ package Trendy_Terminal is
     function Get_Input return String;
     function Get_Line return String;
 
+    -- A debug version of Get_Line for learning how to write an appropriate
+    -- interface and callback system for Get_Line.
+    function Debug_Get_Line return String;
+
     type Cursor_Position is record
         Row : Integer;
         Col : Integer;

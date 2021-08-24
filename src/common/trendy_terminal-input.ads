@@ -7,6 +7,7 @@ package Trendy_Terminal.Input is
 
     type Cursor_Direction is (Left, Right);
     procedure Move_Cursor (Self : in out Line; Direction : Cursor_Direction);
+    function Cursor_Index (Self : in out Line) return Positive;
 
     procedure Insert (Self : in out Line; S : String);
     procedure Backspace (Self : in out Line);
