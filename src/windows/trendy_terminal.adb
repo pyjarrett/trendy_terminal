@@ -196,8 +196,6 @@ package body Trendy_Terminal is
         return Win.SetConsoleCP (Win.CP_UTF8) /= 0 and then Win.SetConsoleOutputCP (Win.CP_UTF8) /= 0;
     end Enable_UTF8;
 
-    -- Initializes and captures the original settings for the terminal so they can
-    -- be restored when the system is shutdown.
     function Init return Boolean is
     begin
         Std_Output.Handle := Win.GetStdHandle (Win.STD_OUTPUT_HANDLE);
@@ -439,12 +437,6 @@ package body Trendy_Terminal is
             if not KM.Contains (Input_Line) then
                 TTI.Insert (L, ASU.To_String (Input_Line));
             end if;
-
-            -- if not KM.Contains(Input_Line) then
-            --     TTI.Insert (L, ASU.To_String(Input_Line));
-            --     VT100.Clear_Line;
-            --     Write_Terminal(TTI.Current(L));
-            -- end if;
         end loop;
     end Debug_Get_Line;
 end Trendy_Terminal;
