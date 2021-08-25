@@ -7,6 +7,8 @@ package body Trendy_Terminal.Input is
     use all type ASU.Unbounded_String;
     function "+"(S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
 
+    function Length(Self : in Line) return Natural is (Current(Self)'Length);
+
     procedure Move_Cursor (Self : in out Line; Direction : Cursor_Direction) is
     begin
         case Direction is
@@ -17,13 +19,14 @@ package body Trendy_Terminal.Input is
                 end if;
             when Right =>
                 if Self.Cursor <= ASU.Length (Self.Contents) then
+
                     Self.Cursor := Self.Cursor + 1;
                     VT100.Cursor_Right;
                 end if;
         end case;
     end Move_Cursor;
     
-    function Cursor_Index (Self : in out Line) return Positive is
+    function Cursor_Index (Self : in Line) return Positive is
     begin
         return Self.Cursor;
     end Cursor_Index;
