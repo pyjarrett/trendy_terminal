@@ -402,7 +402,7 @@ package body Trendy_Terminal is
         Debug_Pos.Row := Debug_Pos.Row - 1;
 
         loop
-            Print_Line (Debug_Pos, TTI.Cursor_Index(L)'Image);
+            Print_Line (Debug_Pos, "Cursor @ " & TTI.Cursor_Index(L)'Image);
 
             -- Clear anything which has been printed and then print the current
             -- state of the line.
