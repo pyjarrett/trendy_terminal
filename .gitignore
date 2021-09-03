@@ -5,3 +5,5 @@ alire/
 config/
 bin/
 lib/
+
+.vscode/
