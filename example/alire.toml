@@ -1,0 +1,28 @@
+name = "trendy_terminal_example"
+description = "Trendy Terminal Example."
+version = "0.0.1"
+website = "https://github.com/pyjarrett/trendy_terminal"
+authors = ["Paul Y. Jarrett"]
+licenses = "Apache-2.0"
+
+maintainers = ["Paul Jarrett <jarrett.paul.young@gmail.com>"]
+maintainers-logins = ["pyjarrett"]
+tags = ["terminal", "command-line", "console"]
+
+executables = ["trendy_terminal_example"]
+
+[gpr-set-externals.'case(os)']
+windows = { Trendy_Terminal_Platform = "windows" }
+linux = { Trendy_Terminal_Platform = "linux" }
+macos = { Trendy_Terminal_Platform = "macos" }
+
+[available.'case(os)']
+linux = true
+windows = true
+macos = false
+
+[[depends-on]]
+trendy_terminal = "~0.0.1"
+
+[[pins]]
+trendy_terminal = { path = ".." }
