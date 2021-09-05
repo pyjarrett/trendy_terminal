@@ -29,12 +29,17 @@ package Trendy_Terminal is
     procedure Write_Terminal(S : String);
     procedure Write_Terminal_Line(S : String);
 
+    type Format_Function is access function (S : String) return String;
+    type Completion_Function is access function (S: String) return String;
+
     function Get_Input return String;
-    function Get_Line return String;
+    function Get_Line (Format_Fn     : Format_Function := null;
+                       Completion_Fn : Completion_Function := null) return String;
 
     -- A debug version of Get_Line for learning how to write an appropriate
     -- interface and callback system for Get_Line.
-    function Debug_Get_Line return String;
+    function Debug_Get_Line (Format_Fn     : Format_Function := null;
+                             Completion_Fn : Completion_Function := null) return String;
 
     type Cursor_Position is record
         Row : Integer;

@@ -323,7 +323,9 @@ package body Trendy_Terminal is
     -- and hinting callbacks.
     --
     -- TODO: Support full utf-8.  Only ASCII is supported for now.
-    function Get_Line return String is
+    function Get_Line(Format_Fn     : Format_Function := null;
+                      Completion_Fn : Completion_Function := null) return String
+    is
         package TTI renames Trendy_Terminal.Input;
         use all type Interfaces.C.int;
 
@@ -333,36 +335,66 @@ package body Trendy_Terminal is
         KM         : constant TTI.Key_Maps.Map := TTI.Make_Key_Map;
         MK         : constant TTI.Inverse_Key_Maps.Map := TTI.Make_Key_Lookup_Map;
         L          : Trendy_Terminal.Input.Line;
+        Line_Pos   : constant Cursor_Position := Get_Cursor_Position;
+        Debug_Pos  : Cursor_Position := Line_Pos;
+        Edit_Pos   : Cursor_Position := Line_Pos;
+
+        -- Prints an updated input line at the given starting position.
+        procedure Print_Line (Pos : Cursor_Position; S : String) is
+        begin
+            VT100.Position_Cursor (Pos);
+            VT100.Clear_Line;
+            Write_Terminal (S);
+        end Print_Line;
     begin
+        Debug_Pos.Row := Debug_Pos.Row - 1;
+
         loop
-            pragma Assert (Character'Size = 8);
+            Print_Line (Debug_Pos, "Cursor @" & TTI.Cursor_Index(L)'Image);
+
+            -- Clear anything which has been printed and then print the current
+            -- state of the line.
+
+            if Format_Fn /= null then
+                Print_Line (Line_Pos, Format_Fn (TTI.Current (L)));
+            else
+                Print_Line (Line_Pos, TTI.Current (L));
+            end if;
+
+            Edit_Pos.Row := Line_Pos.Row;
+            Edit_Pos.Col := TTI.Cursor_Index(L);
+            VT100.Position_Cursor (Edit_Pos);
+
+            -- Get and process the new input.
             Input_Line := ASU.To_Unbounded_String(Get_Input);
 
             if MK(Key_Left) = Input_Line then
                 TTI.Move_Cursor(L, Trendy_Terminal.Input.Left);
-            end if;
-
-            if MK(Key_Right) = Input_Line then
+            elsif MK(Key_Right) = Input_Line then
                 TTI.Move_Cursor(L, Trendy_Terminal.Input.Right);
-            end if;
-
-            if MK(Key_Backspace) = Input_Line then
+            elsif MK(Key_Backspace) = Input_Line then
                 TTI.Backspace (L);
-                VT100.Clear_Line;
-                Write_Terminal(TTI.Current(L));
-            end if;
-
-            if ASU.Length (Input_Line) = 1 then
+            elsif MK(Key_Delete) = Input_Line then
+                TTI.Delete (L);
+            elsif MK(Key_Tab) = Input_Line then
+                -- Do tab completion on the line
+                if Completion_Fn /= null then
+                    -- Adjust the cursor position?
+                    null;
+                end if;
+            elsif ASU.Length (Input_Line) = 1 then
                 Input := Character'Pos(ASU.Element(Input_Line, 1));
+
+                -- Line has been finished.
                 if Input = Key_Enter then
                     return TTI.Current(L);
                 end if;
             end if;
 
-            if not KM.Contains(Input_Line) then
-                TTI.Insert (L, ASU.To_String(Input_Line));
-                VT100.Clear_Line;
-                Write_Terminal(TTI.Current(L));
+            -- Actual text was inserted.
+            -- TODO: Maybe add a "replace" mode?
+            if not KM.Contains (Input_Line) then
+                TTI.Insert (L, ASU.To_String (Input_Line));
             end if;
         end loop;
     end Get_Line;
@@ -371,7 +403,9 @@ package body Trendy_Terminal is
     -- and hinting callbacks.
     --
     -- TODO: Support full utf-8.  Only ASCII is supported for now.
-    function Debug_Get_Line return String is
+    function Debug_Get_Line (Format_Fn     : Format_Function := null;
+                             Completion_Fn : Completion_Function := null) return String
+    is
         package TTI renames Trendy_Terminal.Input;
         use all type Interfaces.C.int;
 
@@ -399,6 +433,8 @@ package body Trendy_Terminal is
             Write_Terminal (S);
         end Print_Line;
     begin
+        pragma Unreferenced (Format_Fn, Completion_Fn);
+
         Debug_Pos.Row := Debug_Pos.Row - 1;
 
         loop
