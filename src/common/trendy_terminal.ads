@@ -29,10 +29,13 @@ package Trendy_Terminal is
     -- messing with Ada standard library internals such as current column.
     -- This avoids spurious formatting and other implementation quirks of 
     -- those libraries.
+    procedure Put (C : Character);
+    procedure Put (S : String);
+    procedure Put_Line (S : String);
 
-    procedure Write_Terminal(C : Character);
-    procedure Write_Terminal(S : String);
-    procedure Write_Terminal_Line(S : String);
+    procedure Write_Terminal(C : Character) renames Put;
+    procedure Write_Terminal(S : String) renames Put;
+    procedure Write_Terminal_Line(S : String) renames Put_Line;
 
     type Format_Function is access function (S : String) return String;
     type Completion_Function is access function (S: String) return String;

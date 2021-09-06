@@ -1,9 +1,14 @@
+with Ada.Characters.Latin_1;
+with Ada.Strings.Fixed;
 with Ada.Text_IO;
-with Interfaces.C;
+with Interfaces.C.Strings;
 with System;
+with Trendy_Terminal.Input;
+with Trendy_Terminal.VT100;
 
 package body Trendy_Terminal is
     package AIO renames Ada.Text_IO;
+    use all type ASU.Unbounded_String;
 
     ---------------------------------------------------------------------------
     -- Interfacing with C
@@ -108,8 +113,6 @@ package body Trendy_Terminal is
     --
     ---------------------------------------------------------------------------
 
-    type IOType is (Input, Output, Error);
-
     type IOStream is record
         File            : FILE_Ptr;
         File_Descriptor : FD;
@@ -137,17 +140,9 @@ package body Trendy_Terminal is
         return True;
     end Load_Terminal;
 
-    function Make_Handle (Stream_Type : IOType; Handle : out IOStream) return Boolean is
+    function Make_Handle (File : File_Ptr; Handle : out IOStream) return Boolean is
     begin
-        case Stream_Type is
-            when Input =>
-                Handle.File := stdin;
-            when Output =>
-                Handle.File := stdout;
-            when Error =>
-                Handle.File := stderr;
-        end case;
-
+        Handle.File := File;
         Handle.File_Descriptor := fileno (Handle.File);
         return Load_Terminal (Handle.File_Descriptor, Handle.Settings'Unchecked_Access);
     end Make_Handle;
@@ -165,8 +160,8 @@ package body Trendy_Terminal is
         -- Initializes and captures the original settings for the terminal so they can
         -- be restored when the system is shutdown.
     begin
-        if not Make_Handle (Input, Std_Input) or else not Make_Handle (Output, Std_Output)
-            or else not Make_Handle (Error, Std_Error) then
+        if not Make_Handle (stdin, Std_Input) or else not Make_Handle (stdout, Std_Output)
+            or else not Make_Handle (stderr, Std_Error) then
             AIO.Put_Line ("Unable to get standard stream handles.");
         end if;
 
@@ -209,8 +204,234 @@ package body Trendy_Terminal is
         end case;
     end Set;
 
+    procedure Put (C : Character) is
+    begin
+        Ada.Text_IO.Put (C);
+    end Put;
+
+    procedure Put (S : String) is
+    begin
+        Ada.Text_IO.Put (S);
+    end Put;
+
+    procedure Put_Line (S : String) is
+    begin
+        Ada.Text_IO.Put (S);
+    end Put_Line;
+
     procedure Print_Capabilities is
     begin
         null;
     end Print_Capabilities;
+
+    type VOIDP is new Interfaces.C.Strings.chars_ptr;
+
+    -- char *fgets(char *s, int size, FILE *stream);
+    -- read (FD, void*, size_t) return ssize_t;
+    -- constexpr size_t kBufferSize = 1024;
+    -- char input[kBufferSize];
+    -- const auto bytes = read (fileno(stdin), (void*)input, kBufferSize);
+    -- function C_Read (S : Interfaces.C.char_ptr, Size : Integer; Stream : FILE_Ptr)
+    function C_Read (File_Descriptor : FD;
+                     Buffer          : VOIDP;
+                     Buffer_Size     : Integer) return Integer
+        with Import => True,
+             Convention => C;
+
+    function Get_Cursor_Position return Cursor_Position is
+    begin
+        VT100.Report_Cursor_Position;
+
+        declare
+            -- The cursor position is reported as
+            -- ESC [ ROW ; COL R
+            Result : constant String := Get_Input;
+            Semicolon_Index : constant Natural := Ada.Strings.Fixed.Index(Result, ";", 1);
+            Row : constant Integer := Integer'Value(Result(3 .. Semicolon_Index - 1));
+            Col : constant Integer := Integer'Value(Result(Semicolon_Index + 1 .. Result'Length - 1));
+        begin
+            return Cursor_Position'(Row => Row, Col => Col);
+        end;
+    end Get_Cursor_Position;
+
+    -- Gets a collection of input at the same time as a single string.
+    --
+    -- This provides unambiguous inputs for single character presses which
+    -- generate multiple character presses, such as "Up arrow".
+    function Get_Input return String is
+        Buffer_Size  : constant := 512;
+        Buffer       : aliased Interfaces.C.char_array := (1 .. Interfaces.C.size_t(Buffer_Size) => Interfaces.C.nul);
+        Buffer_Ptr   : constant VOIDP := VOIDP(Interfaces.C.Strings.To_Chars_Ptr
+            (Buffer'Unchecked_Access));
+        Chars_Read   : Integer;
+        use all type Interfaces.C.size_t;
+    begin
+        Chars_Read := C_Read (Std_Input.File_Descriptor, Buffer_Ptr, Buffer_Size);
+        if Chars_Read /= 0 then
+            return Interfaces.C.To_Ada(Buffer(1 .. Interfaces.C.size_t(Chars_Read) + 1));
+        else
+            return "";
+        end if;
+    end Get_Input;
+
+    -- TODO: Move the following two functions into a common place since they're
+    -- duplicated between Windows and Linux.
+
+    -- Processes the next line of input in according to completion, formatting,
+    -- and hinting callbacks.
+    --
+    -- TODO: Support full utf-8.  Only ASCII is supported for now.
+    function Get_Line(Format_Fn     : Format_Function := null;
+                      Completion_Fn : Completion_Function := null) return String
+    is
+        package TTI renames Trendy_Terminal.Input;
+        use all type Interfaces.C.int;
+
+        Input_Line : ASU.Unbounded_String;
+        Input      : Interfaces.C.int;
+        Key_Enter  : constant := 13;
+        KM         : constant TTI.Key_Maps.Map := TTI.Make_Key_Map;
+        MK         : constant TTI.Inverse_Key_Maps.Map := TTI.Make_Key_Lookup_Map;
+        L          : Trendy_Terminal.Input.Line;
+        Line_Pos   : constant Cursor_Position := Get_Cursor_Position;
+        Edit_Pos   : Cursor_Position := Line_Pos;
+
+        -- Prints an updated input line at the given starting position.
+        procedure Print_Line (Pos : Cursor_Position; S : String) is
+        begin
+            VT100.Position_Cursor (Pos);
+            VT100.Clear_Line;
+            Write_Terminal (S);
+        end Print_Line;
+    begin
+        loop
+            -- Clear anything which has been printed and then print the current
+            -- state of the line.
+
+            if Format_Fn /= null then
+                Print_Line (Line_Pos, Format_Fn (TTI.Current (L)));
+            else
+                Print_Line (Line_Pos, TTI.Current (L));
+            end if;
+
+            Edit_Pos.Row := Line_Pos.Row;
+            Edit_Pos.Col := TTI.Cursor_Index(L);
+            VT100.Position_Cursor (Edit_Pos);
+
+            -- Get and process the new input.
+            Input_Line := ASU.To_Unbounded_String(Get_Input);
+
+            if MK(Key_Left) = Input_Line then
+                TTI.Move_Cursor(L, Trendy_Terminal.Input.Left);
+            elsif MK(Key_Right) = Input_Line then
+                TTI.Move_Cursor(L, Trendy_Terminal.Input.Right);
+            elsif MK(Key_Backspace) = Input_Line then
+                TTI.Backspace (L);
+            elsif MK(Key_Delete) = Input_Line then
+                TTI.Delete (L);
+            elsif MK(Key_Tab) = Input_Line then
+                -- Do tab completion on the line
+                if Completion_Fn /= null then
+                    -- Adjust the cursor position?
+                    null;
+                end if;
+            elsif ASU.Length (Input_Line) = 1 then
+                Input := Character'Pos(ASU.Element(Input_Line, 1));
+
+                -- Line has been finished.
+                if Input = Key_Enter then
+                    return TTI.Current(L);
+                end if;
+            end if;
+
+            -- Actual text was inserted.
+            -- TODO: Maybe add a "replace" mode?
+            if not KM.Contains (Input_Line) then
+                TTI.Insert (L, ASU.To_String (Input_Line));
+            end if;
+        end loop;
+    end Get_Line;
+    
+    -- Processes the next line of input in according to completion, formatting,
+    -- and hinting callbacks.
+    --
+    -- TODO: Support full utf-8.  Only ASCII is supported for now.
+    function Debug_Get_Line (Format_Fn     : Format_Function := null;
+                             Completion_Fn : Completion_Function := null;
+                             Debug_Fn      : Format_Function := null) return String
+    is
+        package TTI renames Trendy_Terminal.Input;
+        use all type Interfaces.C.int;
+
+        Input_Line : ASU.Unbounded_String;
+        Input      : Interfaces.C.int;
+        Key_Enter  : constant := 13;
+        KM         : constant TTI.Key_Maps.Map := TTI.Make_Key_Map;
+        MK         : constant TTI.Inverse_Key_Maps.Map := TTI.Make_Key_Lookup_Map;
+        L          : Trendy_Terminal.Input.Line;
+        Line_Pos   : constant Cursor_Position := Get_Cursor_Position;
+        Debug_Pos  : Cursor_Position := Line_Pos;
+        Edit_Pos   : Cursor_Position := Line_Pos;
+
+        function Format_Line (S : String) return String is
+            use Ada.Characters.Latin_1;
+        begin
+            return Quotation & S & Quotation;
+        end Format_Line;
+
+        -- Prints an updated input line at the given starting position.
+        procedure Print_Line (Pos : Cursor_Position; S : String) is
+        begin
+            VT100.Position_Cursor (Pos);
+            VT100.Clear_Line;
+            Write_Terminal (S);
+        end Print_Line;
+    begin
+        pragma Unreferenced (Format_Fn, Completion_Fn);
+
+        Debug_Pos.Row := Debug_Pos.Row - 1;
+
+        loop
+            if Debug_Fn /= null then
+                Print_Line (Debug_Pos, Debug_Fn (TTI.Current (L)));
+            else
+                Print_Line (Debug_Pos, "Cursor @ " & TTI.Cursor_Index(L)'Image);
+            end if;
+
+            -- Clear anything which has been printed and then print the current
+            -- state of the line.
+            Print_Line (Line_Pos, Format_Line (TTI.Current (L)));
+
+            Edit_Pos.Row := Line_Pos.Row;
+            Edit_Pos.Col := TTI.Cursor_Index(L) + 1; -- add 1 for the " around the debug line
+            VT100.Position_Cursor (Edit_Pos);
+
+            -- Get and process the new input.
+            Input_Line := ASU.To_Unbounded_String(Get_Input);
+
+            if MK(Key_Left) = Input_Line then
+                TTI.Move_Cursor(L, Trendy_Terminal.Input.Left);
+            elsif MK(Key_Right) = Input_Line then
+                TTI.Move_Cursor(L, Trendy_Terminal.Input.Right);
+            elsif MK(Key_Backspace) = Input_Line then
+                TTI.Backspace (L);
+            elsif MK(Key_Delete) = Input_Line then
+                TTI.Delete (L);
+            elsif ASU.Length (Input_Line) = 1 then
+                Input := Character'Pos(ASU.Element(Input_Line, 1));
+
+                -- Line has been finished.
+                if Input = Key_Enter then
+                    return TTI.Current(L);
+                end if;
+            end if;
+
+            -- Actual text was inserted.
+            -- TODO: Maybe add a "replace" mode?
+            if not KM.Contains (Input_Line) then
+                TTI.Insert (L, ASU.To_String (Input_Line));
+            end if;
+        end loop;
+    end Debug_Get_Line;
 end Trendy_Terminal;
+
