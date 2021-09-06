@@ -336,7 +336,6 @@ package body Trendy_Terminal is
         MK         : constant TTI.Inverse_Key_Maps.Map := TTI.Make_Key_Lookup_Map;
         L          : Trendy_Terminal.Input.Line;
         Line_Pos   : constant Cursor_Position := Get_Cursor_Position;
-        Debug_Pos  : Cursor_Position := Line_Pos;
         Edit_Pos   : Cursor_Position := Line_Pos;
 
         -- Prints an updated input line at the given starting position.
@@ -347,11 +346,7 @@ package body Trendy_Terminal is
             Write_Terminal (S);
         end Print_Line;
     begin
-        Debug_Pos.Row := Debug_Pos.Row - 1;
-
         loop
-            Print_Line (Debug_Pos, "Cursor @" & TTI.Cursor_Index(L)'Image);
-
             -- Clear anything which has been printed and then print the current
             -- state of the line.
 
