@@ -25,6 +25,11 @@ package Trendy_Terminal is
     procedure Set (Setting : Input_Setting; Enabled : Boolean);
     procedure Set (Setting : Output_Setting; Enabled : Boolean);
 
+    -- These are platform-specific terminal read/write functions to avoid
+    -- messing with Ada standard library internals such as current column.
+    -- This avoids spurious formatting and other implementation quirks of 
+    -- those libraries.
+
     procedure Write_Terminal(C : Character);
     procedure Write_Terminal(S : String);
     procedure Write_Terminal_Line(S : String);
