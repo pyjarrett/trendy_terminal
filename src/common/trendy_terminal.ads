@@ -39,7 +39,8 @@ package Trendy_Terminal is
     -- A debug version of Get_Line for learning how to write an appropriate
     -- interface and callback system for Get_Line.
     function Debug_Get_Line (Format_Fn     : Format_Function := null;
-                             Completion_Fn : Completion_Function := null) return String;
+                             Completion_Fn : Completion_Function := null;
+                             Debug_Fn      : Format_Function := null) return String;
 
     type Cursor_Position is record
         Row : Integer;

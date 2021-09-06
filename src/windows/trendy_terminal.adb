@@ -404,7 +404,8 @@ package body Trendy_Terminal is
     --
     -- TODO: Support full utf-8.  Only ASCII is supported for now.
     function Debug_Get_Line (Format_Fn     : Format_Function := null;
-                             Completion_Fn : Completion_Function := null) return String
+                             Completion_Fn : Completion_Function := null;
+                             Debug_Fn      : Format_Function := null) return String
     is
         package TTI renames Trendy_Terminal.Input;
         use all type Interfaces.C.int;
@@ -438,7 +439,11 @@ package body Trendy_Terminal is
         Debug_Pos.Row := Debug_Pos.Row - 1;
 
         loop
-            Print_Line (Debug_Pos, "Cursor @ " & TTI.Cursor_Index(L)'Image);
+            if Debug_Fn /= null then
+                Print_Line (Debug_Pos, Debug_Fn (TTI.Current (L)));
+            else
+                Print_Line (Debug_Pos, "Cursor @ " & TTI.Cursor_Index(L)'Image);
+            end if;
 
             -- Clear anything which has been printed and then print the current
             -- state of the line.
