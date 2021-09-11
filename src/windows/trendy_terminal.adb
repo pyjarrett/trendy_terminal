@@ -15,6 +15,8 @@ package body Trendy_Terminal is
 
     ---------------------------------------------------------------------------
     -- Win32 API functions
+    --
+    -- https://docs.microsoft.com/en-us/windows/console/classic-vs-vt
     ---------------------------------------------------------------------------
     package Windows_Bindings is
         -- Skip the dependencies by not bringing in all of Win32.
@@ -287,20 +289,58 @@ package body Trendy_Terminal is
                            Console_Control : Interfaces.C.ptrdiff_t) return Win.BOOL;
     pragma Import (Stdcall, ReadConsoleA, "ReadConsoleA");
 
+    -- The input stream might have existing inputs, and it may be necessary to
+    -- discard these.  A use case would be clearing the input buffer to get
+    -- VT100 sequences.
+    procedure Clear_Input_Buffer is
+        Buffer_Size  : constant := 1024;
+        Buffer       : aliased Interfaces.C.char_array := (1 .. Interfaces.C.size_t(Buffer_Size) => Interfaces.C.nul);
+        Chars_Read   : aliased Win.DWORD;
+        Result       : Win.BOOL;
+        use all type Interfaces.C.size_t;
+        use all type Win.DWORD;
+    begin
+        -- Put something into the buffer to ensure it won't block.
+        -- It'd be better to peek than do this, but that might fail on named
+        -- pipes for inputs and this is just a simple, but hacky way of doing it.
+        VT100.Report_Cursor_Position;
+        loop
+            Result := ReadConsoleA (
+                Std_Input.Handle,
+                Win.LPVOID(Interfaces.C.Strings.To_Chars_Ptr(Buffer'Unchecked_Access)),
+                Buffer_Size,
+                Chars_Read'Unchecked_Access,
+                0);
+            exit when Chars_Read < Buffer_Size;
+        end loop;
+        pragma Unreferenced (Result);
+    end Clear_Input_Buffer;
+
     function Get_Cursor_Position return Cursor_Position is
     begin
-        VT100.Report_Cursor_Position;
+        loop
+            Clear_Input_Buffer;
+            VT100.Report_Cursor_Position;
+            declare
+                Result : constant String := Get_Input;
+                Semicolon_Index : constant Natural := Ada.Strings.Fixed.Index(Result, ";", 1);
+                Row : Integer := 1;
+                Col : Integer := 1;
+            begin
+                -- The cursor position is reported as
+                -- ESC [ ROW ; COL R
 
-        declare
-            -- The cursor position is reported as
-            -- ESC [ ROW ; COL R
-            Result : constant String := Get_Input;
-            Semicolon_Index : constant Natural := Ada.Strings.Fixed.Index(Result, ";", 1);
-            Row : constant Integer := Integer'Value(Result(3 .. Semicolon_Index - 1));
-            Col : constant Integer := Integer'Value(Result(Semicolon_Index + 1 .. Result'Length - 1));
-        begin
-            return Cursor_Position'(Row => Row, Col => Col);
-        end;
+                -- May throw on bad parse.
+                Row := Integer'Value(Result(3 .. Semicolon_Index - 1));
+                Col := Integer'Value(Result(Semicolon_Index + 1 .. Result'Length - 1));
+
+                return Cursor_Position'(Row => Row, Col => Col);
+            exception
+                -- Bad parse due to existing input on the line.
+                when Constraint_Error =>
+                    null;
+            end;
+        end loop;
     end Get_Cursor_Position;
 
     -- Gets an entire input line from one keypress.  E.g. all the characters
@@ -393,7 +433,7 @@ package body Trendy_Terminal is
             end if;
         end loop;
     end Get_Line;
-    
+
     -- Processes the next line of input in according to completion, formatting,
     -- and hinting callbacks.
     --
