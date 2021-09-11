@@ -119,6 +119,13 @@ package body Trendy_Terminal is
         function WriteFile(hFile : HANDLE; lpBuffer : LPCVOID; BytesToWrite : DWORD;
                            NumBytesWritten : LPDWORD; Overlapped : LPOVERLAPPED) return BOOL;
         pragma Import (Stdcall, WriteFile, "WriteFile");
+
+        function ReadConsoleA (I               : HANDLE;
+                               Buffer          : LPVOID;
+                               Buffer_Size     : DWORD;
+                               Characters_Read : LPDWORD;
+                               Console_Control : Interfaces.C.ptrdiff_t) return BOOL;
+        pragma Import (Stdcall, ReadConsoleA, "ReadConsoleA");
     end Windows_Bindings;
     ---------------------------------------------------------------------------
     --
@@ -312,13 +319,6 @@ package body Trendy_Terminal is
         end case;
     end Set;
 
-    function ReadConsoleA (I               : Win.HANDLE;
-                           Buffer          : Win.LPVOID;
-                           Buffer_Size     : Win.DWORD;
-                           Characters_Read : Win.LPDWORD;
-                           Console_Control : Interfaces.C.ptrdiff_t) return Win.BOOL;
-    pragma Import (Stdcall, ReadConsoleA, "ReadConsoleA");
-
     -- The input stream might have existing inputs, and it may be necessary to
     -- discard these.  A use case would be clearing the input buffer to get
     -- VT100 sequences.
@@ -334,7 +334,8 @@ package body Trendy_Terminal is
         -- pipes for inputs and this is just a simple, but hacky way of doing it.
         VT100.Report_Cursor_Position;
         loop
-            Result := ReadConsoleA (
+            -- TODO: Support UTF-8
+            Result := Win.ReadConsoleA (
                 Std_Input.Handle,
                 Win.LPVOID(Interfaces.C.Strings.To_Chars_Ptr(Buffer'Unchecked_Access)),
                 Buffer_Size,
@@ -353,7 +354,7 @@ package body Trendy_Terminal is
         Chars_Read   : aliased Win.DWORD;
         use all type Interfaces.C.size_t;
     begin
-        if ReadConsoleA (Std_Input.Handle, Win.LPVOID(Interfaces.C.Strings.To_Chars_Ptr(Buffer'Unchecked_Access)),
+        if Win.ReadConsoleA (Std_Input.Handle, Win.LPVOID(Interfaces.C.Strings.To_Chars_Ptr(Buffer'Unchecked_Access)),
                          Buffer_Size, Chars_Read'Unchecked_Access, 0) /= 0 then
             return Interfaces.C.To_Ada(Buffer(1 .. Interfaces.C.size_t(Chars_Read) + 1));
         else
