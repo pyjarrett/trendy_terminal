@@ -1,5 +1,4 @@
 with Ada.Characters.Latin_1;
-with Ada.Strings.Fixed;
 with Ada.Text_IO;
 with Ada.Unchecked_Conversion;
 
@@ -298,7 +297,6 @@ package body Trendy_Terminal is
         Buffer       : aliased Interfaces.C.char_array := (1 .. Interfaces.C.size_t(Buffer_Size) => Interfaces.C.nul);
         Chars_Read   : aliased Win.DWORD;
         Result       : Win.BOOL;
-        use all type Interfaces.C.size_t;
         use all type Win.DWORD;
     begin
         -- Put something into the buffer to ensure it won't block.
@@ -316,33 +314,6 @@ package body Trendy_Terminal is
         end loop;
         pragma Unreferenced (Result);
     end Clear_Input_Buffer;
-
-    function Get_Cursor_Position return Cursor_Position is
-    begin
-        loop
-            Clear_Input_Buffer;
-            VT100.Report_Cursor_Position;
-            declare
-                Result : constant String := Get_Input;
-                Semicolon_Index : constant Natural := Ada.Strings.Fixed.Index(Result, ";", 1);
-                Row : Integer := 1;
-                Col : Integer := 1;
-            begin
-                -- The cursor position is reported as
-                -- ESC [ ROW ; COL R
-
-                -- May throw on bad parse.
-                Row := Integer'Value(Result(3 .. Semicolon_Index - 1));
-                Col := Integer'Value(Result(Semicolon_Index + 1 .. Result'Length - 1));
-
-                return Cursor_Position'(Row => Row, Col => Col);
-            exception
-                -- Bad parse due to existing input on the line.
-                when Constraint_Error =>
-                    null;
-            end;
-        end loop;
-    end Get_Cursor_Position;
 
     -- Gets an entire input line from one keypress.  E.g. all the characters
     -- received for a controlling keypress, such as an arrow key.
@@ -376,7 +347,7 @@ package body Trendy_Terminal is
         KM         : constant Trendy_Terminal.Maps.Key_Maps.Map := Trendy_Terminal.Maps.Make_Key_Map;
         MK         : constant Trendy_Terminal.Maps.Inverse_Key_Maps.Map := Trendy_Terminal.Maps.Make_Key_Lookup_Map;
         L          : Trendy_Terminal.Input.Line_Input;
-        Line_Pos   : constant Cursor_Position := Get_Cursor_Position;
+        Line_Pos   : constant Cursor_Position := Trendy_Terminal.VT100.Get_Cursor_Position;
         Edit_Pos   : Cursor_Position := Line_Pos;
 
         -- Prints an updated input line at the given starting position.
@@ -386,6 +357,8 @@ package body Trendy_Terminal is
             VT100.Clear_Line;
             Put (S);
         end Print_Line;
+
+        use Trendy_Terminal.Maps;
     begin
         loop
             -- Clear anything which has been printed and then print the current
@@ -452,7 +425,7 @@ package body Trendy_Terminal is
         KM         : constant Trendy_Terminal.Maps.Key_Maps.Map := Trendy_Terminal.Maps.Make_Key_Map;
         MK         : constant Trendy_Terminal.Maps.Inverse_Key_Maps.Map := Trendy_Terminal.Maps.Make_Key_Lookup_Map;
         L          : Trendy_Terminal.Input.Line_Input;
-        Line_Pos   : constant Cursor_Position := Get_Cursor_Position;
+        Line_Pos   : constant Cursor_Position := VT100.Get_Cursor_Position;
         Debug_Pos  : Cursor_Position := Line_Pos;
         Edit_Pos   : Cursor_Position := Line_Pos;
 
@@ -469,6 +442,8 @@ package body Trendy_Terminal is
             VT100.Clear_Line;
             Put (S);
         end Print_Line;
+
+        use Trendy_Terminal.Maps;
     begin
         pragma Unreferenced (Format_Fn, Completion_Fn);
 

@@ -1,5 +1,7 @@
 with Ada.Strings.Fixed;
 
+with Trendy_Terminal;
+
 package body Trendy_Terminal.VT100 is
     procedure Cursor_Left is
     begin
@@ -33,5 +35,32 @@ package body Trendy_Terminal.VT100 is
     begin
         Put (CSI & Trim (C.Row'Image, Left) & ";" & Trim (C.Col'Image, Left) & "H");
     end Position_Cursor;
+
+    function Get_Cursor_Position return Cursor_Position is
+    begin
+        loop
+            Clear_Input_Buffer;
+            VT100.Report_Cursor_Position;
+            declare
+                Result : constant String := Get_Input;
+                Semicolon_Index : constant Natural := Ada.Strings.Fixed.Index(Result, ";", 1);
+                Row : Integer := 1;
+                Col : Integer := 1;
+            begin
+                -- The cursor position is reported as
+                -- ESC [ ROW ; COL R
+
+                -- May throw on bad parse.
+                Row := Integer'Value(Result(3 .. Semicolon_Index - 1));
+                Col := Integer'Value(Result(Semicolon_Index + 1 .. Result'Length - 1));
+
+                return Cursor_Position'(Row => Row, Col => Col);
+            exception
+                -- Bad parse due to existing input on the line.
+                when Constraint_Error =>
+                    null;
+            end;
+        end loop;
+    end Get_Cursor_Position;
 
 end Trendy_Terminal.VT100;

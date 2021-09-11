@@ -1,11 +1,8 @@
-with Ada.Characters.Latin_1;
 with Ada.Strings.Unbounded;
 with Trendy_Terminal.VT100;
 
 package body Trendy_Terminal.Input is
     package ASU renames Ada.Strings.Unbounded;
-    use all type ASU.Unbounded_String;
-    function "+"(S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
 
     function Length(Self : in Line_Input) return Natural is (Current(Self)'Length);
 
