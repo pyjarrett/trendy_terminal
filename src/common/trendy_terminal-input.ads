@@ -1,6 +1,10 @@
 -- Ties together input to associated VT100 commands.
 package Trendy_Terminal.Input is
 
+    -- The number of individual cursor positions in a string.
+    -- TODO: Support UTF-8
+    function Num_Cursor_Positions (S : String) return Natural is (S'Length);
+
     -- A generic line to input text using a single cursor.
     --
     -- The cursor position is defined as being the position at which the new
@@ -25,9 +29,9 @@ package Trendy_Terminal.Input is
     function Cursor_Index (Self : in Line_Input) return Positive;
 
     procedure Insert (Self : in out Line_Input; S : String)
-        with Pre => S'Length > 0,
-            Post => Length(Self'Old) + 1 = Length(Self)
-            and then Cursor_Index(Self'Old) + 1 = Cursor_Index(Self);
+        with Pre => S'Length >= 0,
+            Post => Length(Self'Old) + S'Length = Length(Self)
+            and then Cursor_Index (Self'Old) + Num_Cursor_Positions (S) = Cursor_Index(Self);
 
     procedure Backspace (Self : in out Line_Input)
         with Post => Length(Self'Old) = 0
