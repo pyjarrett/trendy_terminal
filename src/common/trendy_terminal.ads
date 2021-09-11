@@ -31,7 +31,13 @@ package Trendy_Terminal is
     -- those libraries.
     procedure Put (C : Character);
     procedure Put (S : String);
+    procedure Put (S : ASU.Unbounded_String);
     procedure Put_Line (S : String);
+    procedure Put_Line (S : ASU.Unbounded_String);
+
+    procedure Clear_Line;
+    procedure New_Line (Num_Lines : Positive);
+    procedure Set_Col (Column : Positive);
 
     type Format_Function is access function (S : String) return String;
     type Completion_Function is access function (S: String) return String;

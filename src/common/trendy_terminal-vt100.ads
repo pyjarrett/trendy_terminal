@@ -24,7 +24,7 @@ package Trendy_Terminal.VT100 is
 
     procedure Report_Cursor_Position;
 
-    procedure Position_Cursor (C : Cursor_Position);
+    procedure Set_Cursor_Position (C : Cursor_Position);
 
     function Get_Cursor_Position return Cursor_Position;
 

@@ -171,7 +171,37 @@ package body Trendy_Terminal is
         Interfaces.C.Strings.Free(Native);
     end Put;
 
-    procedure Put_Line(S : String) renames AIO.Put_Line;
+    procedure Put (S : ASU.Unbounded_String) is
+    begin
+        Put (ASU.To_String(S));
+    end Put;
+
+    procedure Put_Line(S : String) is
+    begin
+        Put (S & Ada.Characters.Latin_1.CR & Ada.Characters.Latin_1.FF);
+    end Put_Line;
+
+    procedure Put_Line (S : ASU.Unbounded_String) is
+    begin
+        Put_Line (ASU.To_String(S));
+    end Put_Line;
+
+    procedure Clear_Line is
+    begin
+        VT100.Clear_Line;
+    end Clear_Line;
+
+    procedure New_Line (Num_Lines : Positive) is
+    begin
+        AIO.New_Line (Ada.Text_IO.Positive_Count (Num_Lines));
+    end New_Line;
+
+    procedure Set_Col (Column : Positive) is
+        Cursor_Pos : Cursor_Position := VT100.Get_Cursor_Position;
+    begin
+        Cursor_Pos.Col := Column;
+        VT100.Set_Cursor_Position (Cursor_Pos);
+    end Set_Col;
 
     function Load_Std_Settings return Boolean is
         Input_DWORD, Output_DWORD, Error_DWORD : aliased Win.DWORD;
@@ -353,7 +383,7 @@ package body Trendy_Terminal is
         -- Prints an updated input line at the given starting position.
         procedure Print_Line (Pos : Cursor_Position; S : String) is
         begin
-            VT100.Position_Cursor (Pos);
+            VT100.Set_Cursor_Position (Pos);
             VT100.Clear_Line;
             Put (S);
         end Print_Line;
@@ -372,7 +402,7 @@ package body Trendy_Terminal is
 
             Edit_Pos.Row := Line_Pos.Row;
             Edit_Pos.Col := TTI.Cursor_Index(L);
-            VT100.Position_Cursor (Edit_Pos);
+            VT100.Set_Cursor_Position (Edit_Pos);
 
             -- Get and process the new input.
             Input_Line := ASU.To_Unbounded_String(Get_Input);
@@ -438,7 +468,7 @@ package body Trendy_Terminal is
         -- Prints an updated input line at the given starting position.
         procedure Print_Line (Pos : Cursor_Position; S : String) is
         begin
-            VT100.Position_Cursor (Pos);
+            VT100.Set_Cursor_Position (Pos);
             VT100.Clear_Line;
             Put (S);
         end Print_Line;
@@ -462,7 +492,7 @@ package body Trendy_Terminal is
 
             Edit_Pos.Row := Line_Pos.Row;
             Edit_Pos.Col := TTI.Cursor_Index(L) + 1; -- add 1 for the " around the debug line
-            VT100.Position_Cursor (Edit_Pos);
+            VT100.Set_Cursor_Position (Edit_Pos);
 
             -- Get and process the new input.
             Input_Line := ASU.To_Unbounded_String(Get_Input);
