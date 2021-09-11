@@ -18,20 +18,20 @@ package Trendy_Terminal.Input is
     -- Cursor:    ^
     -- Valid cursor range: [1, 7]
     --
-    type Line is private
-        with Type_Invariant => Cursor_Index (Line) in 1 .. Length (Line) + 1;
+    type Line_Input is private
+        with Type_Invariant => Cursor_Index (Line_Input) in 1 .. Length (Line_Input) + 1;
 
     type Cursor_Direction is (Left, Right);
-    function Length(Self : in Line) return Natural;
-    procedure Move_Cursor (Self : in out Line; Direction : Cursor_Direction);
-    function Cursor_Index (Self : in Line) return Positive;
+    function Length(Self : in Line_Input) return Natural;
+    procedure Move_Cursor (Self : in out Line_Input; Direction : Cursor_Direction);
+    function Cursor_Index (Self : in Line_Input) return Positive;
 
-    procedure Insert (Self : in out Line; S : String)
+    procedure Insert (Self : in out Line_Input; S : String)
         with Pre => S'Length > 0,
             Post => Length(Self'Old) + 1 = Length(Self)
             and then Cursor_Index(Self'Old) + 1 = Cursor_Index(Self);
 
-    procedure Backspace (Self : in out Line)
+    procedure Backspace (Self : in out Line_Input)
         with Post => Length(Self'Old) = 0
             or else Cursor_Index(Self'Old) = 1
             or else (Length(Self'Old) = Length(Self) + 1
@@ -39,22 +39,22 @@ package Trendy_Terminal.Input is
 
     -- Deletes a characters after the cursor position, shifting all text
     -- afterwards to the left.  Deleting does not modify the cursor position.
-    -- Nothing happens if cursor is after the last character in the line.
-    procedure Delete (Self : in out Line)
+    -- Nothing happens if cursor is after the last character in the Line_Input.
+    procedure Delete (Self : in out Line_Input)
         with Post => Length (Self'Old) = 0
             or else Cursor_Index (Self'Old) = Length (Self) + 1
             or else (Length(Self'Old) = Length(Self) + 1
                 and then Cursor_Index (Self'Old) = Cursor_Index (Self));
 
-    procedure Clear (Self : in out Line)
+    procedure Clear (Self : in out Line_Input)
         with Post => Length (Self) = 0
             and then Cursor_Index (Self) = 1;
 
-    function Current (Self : Line) return String;
+    function Current (Self : Line_Input) return String;
 
 private
 
-    type Line is record
+    type Line_Input is record
         Contents : ASU.Unbounded_String := ASU.Null_Unbounded_String;
         Cursor   : Positive := 1;
     end record;

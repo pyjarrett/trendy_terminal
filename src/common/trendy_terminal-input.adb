@@ -7,9 +7,9 @@ package body Trendy_Terminal.Input is
     use all type ASU.Unbounded_String;
     function "+"(S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
 
-    function Length(Self : in Line) return Natural is (Current(Self)'Length);
+    function Length(Self : in Line_Input) return Natural is (Current(Self)'Length);
 
-    procedure Move_Cursor (Self : in out Line; Direction : Cursor_Direction) is
+    procedure Move_Cursor (Self : in out Line_Input; Direction : Cursor_Direction) is
     begin
         case Direction is
             when Left =>
@@ -26,18 +26,18 @@ package body Trendy_Terminal.Input is
         end case;
     end Move_Cursor;
 
-    function Cursor_Index (Self : in Line) return Positive is
+    function Cursor_Index (Self : in Line_Input) return Positive is
     begin
         return Self.Cursor;
     end Cursor_Index;
 
-    procedure Insert (Self : in out Line; S : String) is
+    procedure Insert (Self : in out Line_Input; S : String) is
     begin
         ASU.Insert(Self.Contents, Self.Cursor, S);
         Self.Cursor := Self.Cursor + S'Length;
     end Insert;
 
-    procedure Backspace (Self : in out Line) is
+    procedure Backspace (Self : in out Line_Input) is
     begin
         if Self.Cursor = 1 then
             return;
@@ -46,7 +46,7 @@ package body Trendy_Terminal.Input is
         Move_Cursor(Self, Left);
     end Backspace;
 
-    procedure Delete (Self : in out Line) is
+    procedure Delete (Self : in out Line_Input) is
     begin
         if ASU.Length (Self.Contents) > 0 and then Self.Cursor <= ASU.Length(Self.Contents) then
             ASU.Delete (Self.Contents, Self.Cursor, Self.Cursor);
@@ -57,11 +57,11 @@ package body Trendy_Terminal.Input is
         end if;
     end Delete;
 
-    procedure Clear (Self : in out Line) is
+    procedure Clear (Self : in out Line_Input) is
     begin
         Self.Cursor := 1;
         Self.Contents := ASU.Null_Unbounded_String;
     end Clear;
 
-    function Current (Self : Line) return String is (ASU.To_String(Self.Contents));
+    function Current (Self : Line_Input) return String is (ASU.To_String(Self.Contents));
 end Trendy_Terminal.Input;

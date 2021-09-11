@@ -375,7 +375,7 @@ package body Trendy_Terminal is
         Key_Enter  : constant := 13;
         KM         : constant Trendy_Terminal.Maps.Key_Maps.Map := Trendy_Terminal.Maps.Make_Key_Map;
         MK         : constant Trendy_Terminal.Maps.Inverse_Key_Maps.Map := Trendy_Terminal.Maps.Make_Key_Lookup_Map;
-        L          : Trendy_Terminal.Input.Line;
+        L          : Trendy_Terminal.Input.Line_Input;
         Line_Pos   : constant Cursor_Position := Get_Cursor_Position;
         Edit_Pos   : Cursor_Position := Line_Pos;
 
@@ -451,7 +451,7 @@ package body Trendy_Terminal is
         Key_Enter  : constant := 13;
         KM         : constant Trendy_Terminal.Maps.Key_Maps.Map := Trendy_Terminal.Maps.Make_Key_Map;
         MK         : constant Trendy_Terminal.Maps.Inverse_Key_Maps.Map := Trendy_Terminal.Maps.Make_Key_Lookup_Map;
-        L          : Trendy_Terminal.Input.Line;
+        L          : Trendy_Terminal.Input.Line_Input;
         Line_Pos   : constant Cursor_Position := Get_Cursor_Position;
         Debug_Pos  : Cursor_Position := Line_Pos;
         Edit_Pos   : Cursor_Position := Line_Pos;
