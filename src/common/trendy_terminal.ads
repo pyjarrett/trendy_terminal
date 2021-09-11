@@ -27,12 +27,11 @@ package Trendy_Terminal is
 
     -- These are platform-specific terminal read/write functions to avoid
     -- messing with Ada standard library internals such as current column.
-    -- This avoids spurious formatting and other implementation quirks of 
+    -- This avoids spurious formatting and other implementation quirks of
     -- those libraries.
-
-    procedure Write_Terminal(C : Character);
-    procedure Write_Terminal(S : String);
-    procedure Write_Terminal_Line(S : String);
+    procedure Put (C : Character);
+    procedure Put (S : String);
+    procedure Put_Line (S : String);
 
     type Format_Function is access function (S : String) return String;
     type Completion_Function is access function (S: String) return String;

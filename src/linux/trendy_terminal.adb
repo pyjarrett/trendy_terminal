@@ -204,9 +204,9 @@ package body Trendy_Terminal is
         end case;
     end Set;
 
-    procedure Write_Terminal (C : Character) renames Ada.Text_IO.Put;
-    procedure Write_Terminal (S : String) renames Ada.Text_IO.Put;
-    procedure Write_Terminal_Line (S : String) renames Ada.Text_IO.Put_Line;
+    procedure Put (C : Character) renames Ada.Text_IO.Put;
+    procedure Put (S : String) renames Ada.Text_IO.Put;
+    procedure Put_Line (S : String) renames Ada.Text_IO.Put_Line;
 
     procedure Print_Capabilities is
     begin
@@ -278,7 +278,7 @@ package body Trendy_Terminal is
         begin
             VT100.Position_Cursor (Pos);
             VT100.Clear_Line;
-            Write_Terminal (S);
+            Put (S);
         end Print_Line;
     begin
         loop
@@ -328,7 +328,7 @@ package body Trendy_Terminal is
             end if;
         end loop;
     end Get_Line;
-    
+
     -- Processes the next line of input in according to completion, formatting,
     -- and hinting callbacks.
     --
@@ -362,7 +362,7 @@ package body Trendy_Terminal is
         begin
             VT100.Position_Cursor (Pos);
             VT100.Clear_Line;
-            Write_Terminal (S);
+            Put (S);
         end Print_Line;
     begin
         pragma Unreferenced (Format_Fn, Completion_Fn);

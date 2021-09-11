@@ -149,7 +149,7 @@ package body Trendy_Terminal is
     Std_Input             : Input_Stream;
     Std_Output, Std_Error : Output_Stream;
 
-    procedure Write_Terminal(C : Character) is
+    procedure Put(C : Character) is
         S       : constant String := (1 => C);
         C_Array : aliased Interfaces.C.char_array := Interfaces.C.To_C(S);
         Native  : aliased Interfaces.C.Strings.chars_ptr := Interfaces.C.Strings.To_Chars_Ptr(C_array'Unchecked_Access);
@@ -159,9 +159,9 @@ package body Trendy_Terminal is
             AIO.Put_Line ("Write failed.");
         end if;
         Interfaces.C.Strings.Free(Native);
-    end Write_Terminal;
+    end Put;
 
-    procedure Write_Terminal(S : String) is
+    procedure Put(S : String) is
         Native : aliased Interfaces.C.Strings.chars_ptr := Interfaces.C.Strings.New_String(S);
         Written : aliased Win.DWORD;
     begin
@@ -169,9 +169,9 @@ package body Trendy_Terminal is
             AIO.Put_Line ("Write failed.");
         end if;
         Interfaces.C.Strings.Free(Native);
-    end Write_Terminal;
+    end Put;
 
-    procedure Write_Terminal_Line(S : String) renames AIO.Put_Line;
+    procedure Put_Line(S : String) renames AIO.Put_Line;
 
     function Load_Std_Settings return Boolean is
         Input_DWORD, Output_DWORD, Error_DWORD : aliased Win.DWORD;
@@ -206,7 +206,7 @@ package body Trendy_Terminal is
 
         if Std_Output.Handle = Win.INVALID_HANDLE_VALUE or else Std_Input.Handle = Win.INVALID_HANDLE_VALUE
             or else Std_Error.Handle = Win.INVALID_HANDLE_VALUE then
-            Write_Terminal_Line ("Unable to get one or more of in/out/err handles.");
+            Put_Line ("Unable to get one or more of in/out/err handles.");
             return False;
         end if;
 
@@ -223,7 +223,7 @@ package body Trendy_Terminal is
         Original_Output_CP := Win.GetConsoleOutputCP;
 
         if not Enable_UTF8 then
-            Write_Terminal_Line ("Unable to set UTF8 code page.");
+            Put_Line ("Unable to set UTF8 code page.");
             return False;
         end if;
 
@@ -235,25 +235,25 @@ package body Trendy_Terminal is
         if Win.SetConsoleMode (Std_Input.Handle, Input_Settings) = 0
             or else Win.SetConsoleMode (Std_Output.Handle, Output_Settings) = 0
             or else Win.SetConsoleMode (Std_Error.Handle, Error_Settings) = 0 then
-            Write_Terminal_Line ("Unable to restore all terminal settings to originals.");
+            Put_Line ("Unable to restore all terminal settings to originals.");
         end if;
 
         if Win.SetConsoleCP (Original_Input_CP) = 0 or else Win.SetConsoleOutputCP (Original_Output_CP) = 0 then
-            Write_Terminal_Line ("Unable to restore original terminal code page.");
+            Put_Line ("Unable to restore original terminal code page.");
         end if;
     end Shutdown;
 
     procedure Apply (Input : Input_Stream) is
     begin
         if Win.SetConsoleMode(Input.Handle, Win.To_DWORD(Input.Settings)) = 0 then
-            Write_Terminal_Line ("Unable to change console modes: ERROR#" & Win.GetLastError'Image);
+            Put_Line ("Unable to change console modes: ERROR#" & Win.GetLastError'Image);
         end if;
     end Apply;
 
     procedure Apply (Output : Output_Stream) is
     begin
         if Win.SetConsoleMode(Output.Handle, Win.To_DWORD(Output.Settings)) = 0 then
-            Write_Terminal_Line ("Unable to change console modes: ERROR# " & Win.GetLastError'Image);
+            Put_Line ("Unable to change console modes: ERROR# " & Win.GetLastError'Image);
         end if;
     end Apply;
 
@@ -383,7 +383,7 @@ package body Trendy_Terminal is
         begin
             VT100.Position_Cursor (Pos);
             VT100.Clear_Line;
-            Write_Terminal (S);
+            Put (S);
         end Print_Line;
     begin
         loop
@@ -466,7 +466,7 @@ package body Trendy_Terminal is
         begin
             VT100.Position_Cursor (Pos);
             VT100.Clear_Line;
-            Write_Terminal (S);
+            Put (S);
         end Print_Line;
     begin
         pragma Unreferenced (Format_Fn, Completion_Fn);
