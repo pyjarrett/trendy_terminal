@@ -12,12 +12,9 @@ with Trendy_Terminal.Windows;
 
 package body Trendy_Terminal is
     package AIO renames Ada.Text_IO;
-    use all type ASU.Unbounded_String;
-
-    ---------------------------------------------------------------------------
-    --
-    ---------------------------------------------------------------------------
     package Win renames Trendy_Terminal.Windows;
+
+    use all type ASU.Unbounded_String;
     use type Win.BOOL;
     use type Win.HANDLE;
 
@@ -87,7 +84,7 @@ package body Trendy_Terminal is
 
     procedure New_Line (Num_Lines : Positive) is
     begin
-        AIO.New_Line (Ada.Text_IO.Positive_Count (Num_Lines));
+        AIO.New_Line (AIO.Positive_Count (Num_Lines));
     end New_Line;
 
     procedure Set_Col (Column : Positive) is
