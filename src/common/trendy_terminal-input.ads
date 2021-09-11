@@ -29,7 +29,7 @@ package Trendy_Terminal.Input is
     procedure Insert (Self : in out Line; S : String)
         with Pre => S'Length > 0,
             Post => Length(Self'Old) + 1 = Length(Self)
-            and then Cursor_Index(Self'Old) + 1 = Cursor_Index(Self);            
+            and then Cursor_Index(Self'Old) + 1 = Cursor_Index(Self);
 
     procedure Backspace (Self : in out Line)
         with Post => Length(Self'Old) = 0
@@ -51,23 +51,6 @@ package Trendy_Terminal.Input is
             and then Cursor_Index (Self) = 1;
 
     function Current (Self : Line) return String;
-
-    ---------------------------------------------------------------------------
-    -- Input Mapping
-    ---------------------------------------------------------------------------
-
-    package Key_Maps is new Ada.Containers.Ordered_Maps (Key_Type => ASU.Unbounded_String,
-                                                         Element_Type => Key,
-                                                         "<" => ASU."<",
-                                                         "=" => "=");
-
-    package Inverse_Key_Maps is new Ada.Containers.Ordered_Maps (Key_Type => Key,
-                                                         Element_Type => ASU.Unbounded_String,
-                                                         "<" => "<",
-                                                         "=" => ASU."=");
-
-    function Make_Key_Map return Key_Maps.Map;
-    function Make_Key_Lookup_Map return Inverse_Key_Maps.Map;
 
 private
 

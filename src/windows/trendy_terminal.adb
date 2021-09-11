@@ -6,6 +6,7 @@ with Ada.Unchecked_Conversion;
 with Interfaces.C.Strings;
 
 with Trendy_Terminal.Input;
+with Trendy_Terminal.Maps;
 with Trendy_Terminal.VT100;
 
 package body Trendy_Terminal is
@@ -372,8 +373,8 @@ package body Trendy_Terminal is
         Input_Line : ASU.Unbounded_String;
         Input      : Interfaces.C.int;
         Key_Enter  : constant := 13;
-        KM         : constant TTI.Key_Maps.Map := TTI.Make_Key_Map;
-        MK         : constant TTI.Inverse_Key_Maps.Map := TTI.Make_Key_Lookup_Map;
+        KM         : constant Trendy_Terminal.Maps.Key_Maps.Map := Trendy_Terminal.Maps.Make_Key_Map;
+        MK         : constant Trendy_Terminal.Maps.Inverse_Key_Maps.Map := Trendy_Terminal.Maps.Make_Key_Lookup_Map;
         L          : Trendy_Terminal.Input.Line;
         Line_Pos   : constant Cursor_Position := Get_Cursor_Position;
         Edit_Pos   : Cursor_Position := Line_Pos;
@@ -448,8 +449,8 @@ package body Trendy_Terminal is
         Input_Line : ASU.Unbounded_String;
         Input      : Interfaces.C.int;
         Key_Enter  : constant := 13;
-        KM         : constant TTI.Key_Maps.Map := TTI.Make_Key_Map;
-        MK         : constant TTI.Inverse_Key_Maps.Map := TTI.Make_Key_Lookup_Map;
+        KM         : constant Trendy_Terminal.Maps.Key_Maps.Map := Trendy_Terminal.Maps.Make_Key_Map;
+        MK         : constant Trendy_Terminal.Maps.Inverse_Key_Maps.Map := Trendy_Terminal.Maps.Make_Key_Lookup_Map;
         L          : Trendy_Terminal.Input.Line;
         Line_Pos   : constant Cursor_Position := Get_Cursor_Position;
         Debug_Pos  : Cursor_Position := Line_Pos;
