@@ -12,13 +12,8 @@ Types of changes:
 - 🛠️ `Fixed` for any bug fixes.
 - 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
 
-# [Unreleased]
+# [[Unreleased]]
 
-## 🛠️ Fixed
-
-- 7c20e0930797f59532cee58968f5039ce0389ee7 Crash when existing input on `Get_Input`
-
-## ✅ Added
-
-- `Put` procedures like those in `Ada.Text_IO`.
-- Formatting callbacks to `Get_Line`.
+- 🛠️ Fixed [CRASH #1](https://github.com/pyjarrett/trendy_terminal/issues/1) when input preexists prior to `Get_Input`.
+- ✅ Added `Put` procedures like those in `Ada.Text_IO`.
+- ✅ Added formatting callbacks to `Get_Line`.
