@@ -4,7 +4,9 @@ with System;
 
 with Ada.Strings.Fixed;
 with Interfaces.C.Strings;
+
 with Trendy_Terminal.Input;
+with Trendy_Terminal.Maps;
 with Trendy_Terminal.VT100;
 
 package body Trendy_Terminal is
@@ -206,34 +208,59 @@ package body Trendy_Terminal is
 
     procedure Put (C : Character) renames Ada.Text_IO.Put;
     procedure Put (S : String) renames Ada.Text_IO.Put;
+    procedure Put (S : ASU.Unbounded_String) is
+    begin
+        Put (ASU.To_String (S));
+    end Put;
+
     procedure Put_Line (S : String) renames Ada.Text_IO.Put_Line;
+    procedure Put_Line (S : ASU.Unbounded_String) is
+    begin
+        Put_Line (ASU.To_String (S));
+    end Put_Line;
+
+    procedure Clear_Line is
+    begin
+        VT100.Clear_Line;
+    end Clear_Line;
+
+    procedure New_Line (Num_Lines : Positive) is
+    begin
+        AIO.New_Line (AIO.Positive_Count (Num_Lines));
+    end New_Line;
+
+    procedure Set_Col (Column : Positive) is
+    begin
+        AIO.Set_Col (AIO.Positive_Count (Column));
+    end Set_Col;
 
     procedure Print_Capabilities is
     begin
         null;
     end Print_Capabilities;
 
-
-    function Get_Cursor_Position return Cursor_Position is
-    begin
-        VT100.Report_Cursor_Position;
-
-        declare
-            -- The cursor position is reported as
-            -- ESC [ ROW ; COL R
-            Result : constant String := Get_Input;
-            Semicolon_Index : constant Natural := Ada.Strings.Fixed.Index(Result, ";", 1);
-            Row : constant Integer := Integer'Value(Result(3 .. Semicolon_Index - 1));
-            Col : constant Integer := Integer'Value(Result(Semicolon_Index + 1 .. Result'Length - 1));
-        begin
-            return Cursor_Position'(Row => Row, Col => Col);
-        end;
-    end Get_Cursor_Position;
-
     type VOIDP is new Interfaces.C.Strings.chars_ptr;
-    function C_Read (File_Descriptor : FD; Buffer : VOIDP; Buffer_Size : Natural) return Integer
+    function Read (File_Descriptor : FD; Buffer : VOIDP; Buffer_Size : Natural) return Integer
         with Import     => True,
              Convention => C;
+
+    procedure Clear_Input_Buffer is
+        Buffer_Size  : constant := 1024;
+        Buffer       : aliased Interfaces.C.char_array := (1 .. Interfaces.C.size_t(Buffer_Size) => Interfaces.C.nul);
+        Chars_Read   : Integer;
+        use all type Interfaces.C.size_t;
+    begin
+        -- Put something into the buffer to ensure it won't block.
+        -- It'd be better to peek than do this, but that might fail on named
+        -- pipes for inputs and this is just a simple, but hacky way of doing it.
+        VT100.Report_Cursor_Position;
+        loop
+            Chars_Read := Read (fileno (Std_Input.File),
+                VOIDP (Interfaces.C.Strings.To_Chars_Ptr (Buffer'Unchecked_Access)),
+                Buffer_Size);
+            exit when Chars_Read < Buffer_Size;
+        end loop;
+    end Clear_Input_Buffer;
 
     -- Gets an entire input line from one keypress.  E.g. all the characters
     -- received for a controlling keypress, such as an arrow key.
@@ -243,7 +270,7 @@ package body Trendy_Terminal is
         Chars_Read   : Integer;
         use all type Interfaces.C.size_t;
     begin
-        Chars_Read := C_Read (fileno (Std_Input.File),
+        Chars_Read := Read (fileno (Std_Input.File),
             VOIDP (Interfaces.C.Strings.To_Chars_Ptr (Buffer'Unchecked_Access)),
             Buffer_Size);
         if Chars_Read > 0 then
@@ -261,16 +288,20 @@ package body Trendy_Terminal is
                       Completion_Fn : Completion_Function := null) return String
     is
         package TTI renames Trendy_Terminal.Input;
+        use Trendy_Terminal.Maps;
         use all type Interfaces.C.int;
         use all type ASU.Unbounded_String;
 
         Input_Line : ASU.Unbounded_String;
         Input      : Interfaces.C.int;
+        Key_Other  : constant := 10;
         Key_Enter  : constant := 13;
-        KM         : constant TTI.Key_Maps.Map := TTI.Make_Key_Map;
-        MK         : constant TTI.Inverse_Key_Maps.Map := TTI.Make_Key_Lookup_Map;
-        L          : Trendy_Terminal.Input.Line;
-        Line_Pos   : constant Cursor_Position := Get_Cursor_Position;
+        KM         : constant Trendy_Terminal.Maps.Key_Maps.Map :=
+            Trendy_Terminal.Maps.Make_Key_Map;
+        MK         : constant Trendy_Terminal.Maps.Inverse_Key_Maps.Map :=
+            Trendy_Terminal.Maps.Make_Key_Lookup_Map;
+        L          : Trendy_Terminal.Input.Line_Input;
+        Line_Pos   : constant Cursor_Position := VT100.Get_Cursor_Position;
         Edit_Pos   : Cursor_Position := Line_Pos;
 
         -- Prints an updated input line at the given starting position.
@@ -316,7 +347,7 @@ package body Trendy_Terminal is
                 Input := Character'Pos(ASU.Element(Input_Line, 1));
 
                 -- Line has been finished.
-                if Input = Key_Enter then
+                if Input = Key_Enter or else Input = Key_Other then
                     return TTI.Current(L);
                 end if;
             end if;
@@ -338,16 +369,20 @@ package body Trendy_Terminal is
                              Debug_Fn      : Format_Function := null) return String
     is
         package TTI renames Trendy_Terminal.Input;
+        use Trendy_Terminal.Maps;
         use all type Interfaces.C.int;
         use all type ASU.Unbounded_String;
 
         Input_Line : ASU.Unbounded_String;
         Input      : Interfaces.C.int;
+        Key_Other  : constant := 10;
         Key_Enter  : constant := 13;
-        KM         : constant TTI.Key_Maps.Map := TTI.Make_Key_Map;
-        MK         : constant TTI.Inverse_Key_Maps.Map := TTI.Make_Key_Lookup_Map;
-        L          : Trendy_Terminal.Input.Line;
-        Line_Pos   : constant Cursor_Position := Get_Cursor_Position;
+        KM         : constant Trendy_Terminal.Maps.Key_Maps.Map :=
+            Trendy_Terminal.Maps.Make_Key_Map;
+        MK         : constant Trendy_Terminal.Maps.Inverse_Key_Maps.Map :=
+            Trendy_Terminal.Maps.Make_Key_Lookup_Map;
+        L          : Trendy_Terminal.Input.Line_Input;
+        Line_Pos   : constant Cursor_Position := VT100.Get_Cursor_Position;
         Debug_Pos  : Cursor_Position := Line_Pos;
         Edit_Pos   : Cursor_Position := Line_Pos;
 
@@ -399,7 +434,7 @@ package body Trendy_Terminal is
                 Input := Character'Pos(ASU.Element(Input_Line, 1));
 
                 -- Line has been finished.
-                if Input = Key_Enter then
+                if Input = Key_Enter or Input = Key_Other then
                     return TTI.Current(L);
                 end if;
             end if;
