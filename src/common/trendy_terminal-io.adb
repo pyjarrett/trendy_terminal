@@ -53,7 +53,9 @@ package body Trendy_Terminal.IO is
                       Completion_Fn : Completion_Function := null) return String
     is
         package TTI renames Trendy_Terminal.Input;
+        use Trendy_Terminal.Maps;
         use all type Interfaces.C.int;
+        use all type ASU.Unbounded_String;
 
         Input_Line : ASU.Unbounded_String;
         Input      : Interfaces.C.int;
@@ -72,9 +74,6 @@ package body Trendy_Terminal.IO is
             VT100.Clear_Line;
             Put (S);
         end Print_Line;
-
-        use all type ASU.Unbounded_String;
-        use Trendy_Terminal.Maps;
     begin
         loop
             -- Clear anything which has been printed and then print the current
