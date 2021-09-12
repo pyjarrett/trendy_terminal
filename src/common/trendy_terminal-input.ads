@@ -24,36 +24,38 @@ package Trendy_Terminal.Input is
     -- Valid cursor range: [1, 7]
     --
     type Line_Input is private
-        with Type_Invariant => Cursor_Index (Line_Input) in 1 .. Length (Line_Input) + 1;
+        with Type_Invariant => Get_Cursor_Index (Line_Input) in 1 .. Length (Line_Input) + 1;
 
     type Cursor_Direction is (Left, Right);
     function Length(Self : in Line_Input) return Natural;
     procedure Move_Cursor (Self : in out Line_Input; Direction : Cursor_Direction);
-    function Cursor_Index (Self : in Line_Input) return Positive;
+
+    function Get_Cursor_Index (Self : in Line_Input) return Positive;
+    procedure Set_Cursor_Index (Self : in out Line_Input; Cursor_Index : Positive);
 
     procedure Insert (Self : in out Line_Input; S : String)
         with Pre => S'Length >= 0,
             Post => Length(Self'Old) + S'Length = Length(Self)
-            and then Cursor_Index (Self'Old) + Num_Cursor_Positions (S) = Cursor_Index(Self);
+            and then Get_Cursor_Index (Self'Old) + Num_Cursor_Positions (S) = Get_Cursor_Index(Self);
 
     procedure Backspace (Self : in out Line_Input)
         with Post => Length(Self'Old) = 0
-            or else Cursor_Index(Self'Old) = 1
+            or else Get_Cursor_Index(Self'Old) = 1
             or else (Length(Self'Old) = Length(Self) + 1
-                and then Cursor_Index(Self'Old) - 1 = Cursor_Index(Self));
+                and then Get_Cursor_Index(Self'Old) - 1 = Get_Cursor_Index(Self));
 
     -- Deletes a characters after the cursor position, shifting all text
     -- afterwards to the left.  Deleting does not modify the cursor position.
     -- Nothing happens if cursor is after the last character in the Line_Input.
     procedure Delete (Self : in out Line_Input)
         with Post => Length (Self'Old) = 0
-            or else Cursor_Index (Self'Old) = Length (Self) + 1
+            or else Get_Cursor_Index (Self'Old) = Length (Self) + 1
             or else (Length(Self'Old) = Length(Self) + 1
-                and then Cursor_Index (Self'Old) = Cursor_Index (Self));
+                and then Get_Cursor_Index (Self'Old) = Get_Cursor_Index (Self));
 
     procedure Clear (Self : in out Line_Input)
         with Post => Length (Self) = 0
-            and then Cursor_Index (Self) = 1;
+            and then Get_Cursor_Index (Self) = 1;
 
     function Current (Self : Line_Input) return String;
 

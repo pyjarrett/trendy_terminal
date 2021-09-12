@@ -4,7 +4,6 @@ with Ada.Text_IO;
 
 with Interfaces.C.Strings;
 
-with Trendy_Terminal.Input;
 with Trendy_Terminal.Maps;
 with Trendy_Terminal.VT100;
 
@@ -89,7 +88,7 @@ package body Trendy_Terminal.IO is
                 Print_Line (Line_Pos, TTI.Current (L));
             end if;
 
-            Edit_Pos.Col := TTI.Cursor_Index(L);
+            Edit_Pos.Col := TTI.Get_Cursor_Index(L);
             VT100.Set_Cursor_Position (Edit_Pos);
 
             -- Get and process the new input.
@@ -103,6 +102,10 @@ package body Trendy_Terminal.IO is
                 TTI.Backspace (L);
             elsif MK(Key_Delete) = Input_Line then
                 TTI.Delete (L);
+            elsif MK(Key_Home) = Input_Line then
+                TTI.Set_Cursor_Index (L, 1);
+            elsif MK(Key_End) = Input_Line then
+                TTI.Set_Cursor_Index (L, TTI.Length (L) + 1);
             elsif MK(Key_Tab) = Input_Line then
                 -- Do tab completion on the line
                 if Completion_Fn /= null then

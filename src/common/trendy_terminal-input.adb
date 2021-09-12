@@ -20,10 +20,15 @@ package body Trendy_Terminal.Input is
         end case;
     end Move_Cursor;
 
-    function Cursor_Index (Self : in Line_Input) return Positive is
+    function Get_Cursor_Index (Self : in Line_Input) return Positive is
     begin
         return Self.Cursor;
-    end Cursor_Index;
+    end Get_Cursor_Index;
+
+    procedure Set_Cursor_Index (Self : in out Line_Input; Cursor_Index : Positive) is
+    begin
+        Self.Cursor := Cursor_Index;
+    end Set_Cursor_Index;
 
     procedure Insert (Self : in out Line_Input; S : String) is
     begin

@@ -1,4 +1,6 @@
 with Ada.Strings.Unbounded;
+
+with Trendy_Terminal.Input;
 with Trendy_Terminal.Platform;
 
 package Trendy_Terminal.IO is
@@ -19,7 +21,7 @@ package Trendy_Terminal.IO is
     procedure Set_Col (Column : Positive);
 
     type Format_Function is access function (S : String) return String;
-    type Completion_Function is access function (S: String) return String;
+    type Completion_Function is access function (L : Input.Line_Input) return Input.Line_Input;
 
     function Get_Line (Format_Fn     : Format_Function := null;
                        Completion_Fn : Completion_Function := null) return String;
