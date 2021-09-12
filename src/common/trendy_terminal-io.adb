@@ -45,6 +45,14 @@ package body Trendy_Terminal.IO is
         VT100.Set_Cursor_Position (Cursor_Pos);
     end Set_Col;
 
+    function Should_Terminate_Input (Input_Line : ASU.Unbounded_String) return Boolean is
+        Key_CR : constant := 10;
+        Key_FF : constant := 13;
+        Input  : constant Integer := Character'Pos(ASU.Element(Input_Line, 1));
+    begin
+        return Input = Key_CR or else Input = Key_FF;
+    end Should_Terminate_Input;
+
     -- Processes the next line of input in according to completion, formatting,
     -- and hinting callbacks.
     --
@@ -58,9 +66,6 @@ package body Trendy_Terminal.IO is
         use all type ASU.Unbounded_String;
 
         Input_Line : ASU.Unbounded_String;
-        Input      : Interfaces.C.int;
-        Key_CR     : constant := 10;
-        Key_FF     : constant := 13;
         KM         : constant Trendy_Terminal.Maps.Key_Maps.Map := Maps.Make_Key_Map;
         MK         : constant Trendy_Terminal.Maps.Inverse_Key_Maps.Map := Maps.Make_Key_Lookup_Map;
         L          : Trendy_Terminal.Input.Line_Input;
@@ -75,17 +80,15 @@ package body Trendy_Terminal.IO is
             Put (S);
         end Print_Line;
     begin
-        loop
-            -- Clear anything which has been printed and then print the current
-            -- state of the line.
+        Edit_Pos.Row := Line_Pos.Row;
 
+        loop
             if Format_Fn /= null then
                 Print_Line (Line_Pos, Format_Fn (TTI.Current (L)));
             else
                 Print_Line (Line_Pos, TTI.Current (L));
             end if;
 
-            Edit_Pos.Row := Line_Pos.Row;
             Edit_Pos.Col := TTI.Cursor_Index(L);
             VT100.Set_Cursor_Position (Edit_Pos);
 
@@ -106,13 +109,8 @@ package body Trendy_Terminal.IO is
                     -- Adjust the cursor position?
                     null;
                 end if;
-            elsif ASU.Length (Input_Line) = 1 then
-                Input := Character'Pos(ASU.Element(Input_Line, 1));
-
-                -- Line has been finished.
-                if Input = Key_CR or else Input = Key_FF then
-                    return TTI.Current(L);
-                end if;
+            elsif ASU.Length (Input_Line) = 1 and then Should_Terminate_Input (Input_Line) then
+                return TTI.Current (L);
             end if;
 
             -- Actual text was inserted.
