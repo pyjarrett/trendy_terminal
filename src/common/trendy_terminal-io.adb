@@ -57,7 +57,8 @@ package body Trendy_Terminal.IO is
 
         Input_Line : ASU.Unbounded_String;
         Input      : Interfaces.C.int;
-        Key_Enter  : constant := 13;
+        Key_CR     : constant := 10;
+        Key_FF     : constant := 13;
         KM         : constant Trendy_Terminal.Maps.Key_Maps.Map := Maps.Make_Key_Map;
         MK         : constant Trendy_Terminal.Maps.Inverse_Key_Maps.Map := Maps.Make_Key_Lookup_Map;
         L          : Trendy_Terminal.Input.Line_Input;
@@ -110,7 +111,7 @@ package body Trendy_Terminal.IO is
                 Input := Character'Pos(ASU.Element(Input_Line, 1));
 
                 -- Line has been finished.
-                if Input = Key_Enter then
+                if Input = Key_CR or else Input = Key_FF then
                     return TTI.Current(L);
                 end if;
             end if;
