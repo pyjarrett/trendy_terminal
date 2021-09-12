@@ -1,5 +1,8 @@
+with Ada.Strings.Unbounded;
+
 -- Ties together input to associated VT100 commands.
 package Trendy_Terminal.Input is
+    package ASU renames Ada.Strings.Unbounded;
 
     -- The number of individual cursor positions in a string.
     -- TODO: Support UTF-8

@@ -1,9 +1,6 @@
-with Ada.Strings.Unbounded;
 with Trendy_Terminal.VT100;
 
 package body Trendy_Terminal.Input is
-    package ASU renames Ada.Strings.Unbounded;
-
     function Length(Self : in Line_Input) return Natural is (Current(Self)'Length);
 
     procedure Move_Cursor (Self : in out Line_Input; Direction : Cursor_Direction) is
