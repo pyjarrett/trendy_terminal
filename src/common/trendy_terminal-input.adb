@@ -20,6 +20,12 @@ package body Trendy_Terminal.Input is
         end case;
     end Move_Cursor;
 
+    procedure Set (Self : in out Line_Input; S : String; Index : Positive) is
+    begin
+        Self.Contents := ASU.To_Unbounded_String (S);
+        Self.Cursor := Index;
+    end Set;
+
     function Get_Cursor_Index (Self : in Line_Input) return Positive is
     begin
         return Self.Cursor;

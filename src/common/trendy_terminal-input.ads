@@ -30,6 +30,8 @@ package Trendy_Terminal.Input is
     function Length(Self : in Line_Input) return Natural;
     procedure Move_Cursor (Self : in out Line_Input; Direction : Cursor_Direction);
 
+    procedure Set (Self : in out Line_Input; S : String; Index : Positive);
+
     function Get_Cursor_Index (Self : in Line_Input) return Positive;
     procedure Set_Cursor_Index (Self : in out Line_Input; Cursor_Index : Positive);
 

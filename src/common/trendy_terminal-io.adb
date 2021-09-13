@@ -107,10 +107,8 @@ package body Trendy_Terminal.IO is
             elsif MK(Key_End) = Input_Line then
                 TTI.Set_Cursor_Index (L, TTI.Length (L) + 1);
             elsif MK(Key_Tab) = Input_Line then
-                -- Do tab completion on the line
                 if Completion_Fn /= null then
-                    -- Adjust the cursor position?
-                    null;
+                    L := Completion_Fn (L, 1);
                 end if;
             elsif ASU.Length (Input_Line) = 1 and then Should_Terminate_Input (Input_Line) then
                 return TTI.Current (L);
