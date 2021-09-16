@@ -1,3 +1,4 @@
+with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 
 with Trendy_Terminal.Input;
@@ -22,13 +23,19 @@ package Trendy_Terminal.IO is
 
     type Format_Function is access function (S : String) return String;
 
+    package Line_Vectors is new Ada.Containers.Vectors(
+            Index_Type   => Positive,
+            Element_Type => Trendy_Terminal.Input.Line_Input,
+            "="          => Trendy_Terminal.Input."="
+    );
+
     -- Attempts to complete a line.
     --
     -- Completion_Index is the N'th attempted completion of the line.
     -- Shift-tab should decrease the Completion_Index,
     -- tab should increase the Completion_Index.
-    type Completion_Function is access function (L : Input.Line_Input; Completion_Index : Integer)
-        return Input.Line_Input;
+    type Completion_Function is access function (L : Input.Line_Input)
+        return Line_Vectors.Vector;
 
     function Get_Line (Format_Fn     : Format_Function := null;
                        Completion_Fn : Completion_Function := null) return String;

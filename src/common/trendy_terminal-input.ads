@@ -30,6 +30,7 @@ package Trendy_Terminal.Input is
     function Length(Self : in Line_Input) return Natural;
     procedure Move_Cursor (Self : in out Line_Input; Direction : Cursor_Direction);
 
+    function Make (S : String; Index : Positive) return Line_Input;
     procedure Set (Self : in out Line_Input; S : String; Index : Positive);
 
     function Get_Cursor_Index (Self : in Line_Input) return Positive;
@@ -60,6 +61,11 @@ package Trendy_Terminal.Input is
             and then Get_Cursor_Index (Self) = 1;
 
     function Current (Self : Line_Input) return String;
+
+    overriding
+    function "="(Left, Right : Line_Input) return Boolean is (
+        Get_Cursor_Index (Left) = Get_Cursor_Index (Right)
+        and then Current (Left) = Current (Right));
 
 private
 

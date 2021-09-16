@@ -20,6 +20,14 @@ package body Trendy_Terminal.Input is
         end case;
     end Move_Cursor;
 
+    function Make (S : String; Index : Positive) return Line_Input is
+    begin
+        return Result : Line_Input do
+            Result.Contents := ASU.To_Unbounded_String (S);
+            Result.Cursor := Index;
+        end return;
+    end Make;
+
     procedure Set (Self : in out Line_Input; S : String; Index : Positive) is
     begin
         Self.Contents := ASU.To_Unbounded_String (S);

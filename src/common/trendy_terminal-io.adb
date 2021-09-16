@@ -1,8 +1,5 @@
 with Ada.Characters.Latin_1;
 with Ada.Strings.Fixed;
-with Ada.Text_IO;
-
-with Interfaces.C.Strings;
 
 with Trendy_Terminal.Maps;
 with Trendy_Terminal.VT100;
@@ -61,15 +58,17 @@ package body Trendy_Terminal.IO is
     is
         package TTI renames Trendy_Terminal.Input;
         use Trendy_Terminal.Maps;
-        use all type Interfaces.C.int;
         use all type ASU.Unbounded_String;
+        use all type Ada.Containers.Count_Type;
 
-        Input_Line : ASU.Unbounded_String;
-        KM         : constant Trendy_Terminal.Maps.Key_Maps.Map := Maps.Make_Key_Map;
-        MK         : constant Trendy_Terminal.Maps.Inverse_Key_Maps.Map := Maps.Make_Key_Lookup_Map;
-        L          : Trendy_Terminal.Input.Line_Input;
-        Line_Pos   : constant Cursor_Position := Get_Cursor_Position;
-        Edit_Pos   : Cursor_Position := Line_Pos;
+        Input_Line  : ASU.Unbounded_String;
+        KM          : constant Trendy_Terminal.Maps.Key_Maps.Map := Maps.Make_Key_Map;
+        MK          : constant Trendy_Terminal.Maps.Inverse_Key_Maps.Map := Maps.Make_Key_Lookup_Map;
+        L           : Trendy_Terminal.Input.Line_Input;
+        Line_Pos    : constant Cursor_Position := Get_Cursor_Position;
+        Edit_Pos    : Cursor_Position := Line_Pos;
+        Tab_Pos     : Integer := 1;
+        Completions : Line_Vectors.Vector;
 
         -- Prints an updated input line at the given starting position.
         procedure Print_Line (Pos : Cursor_Position; S : String) is
@@ -78,6 +77,12 @@ package body Trendy_Terminal.IO is
             VT100.Clear_Line;
             Put (S);
         end Print_Line;
+
+        procedure Reset_Completions is
+        begin
+            Tab_Pos := 1;
+            Completions.Clear;
+        end Reset_Completions;
     begin
         Edit_Pos.Row := Line_Pos.Row;
 
@@ -96,19 +101,33 @@ package body Trendy_Terminal.IO is
 
             if MK(Key_Left) = Input_Line then
                 TTI.Move_Cursor(L, Trendy_Terminal.Input.Left);
+                Reset_Completions;
             elsif MK(Key_Right) = Input_Line then
                 TTI.Move_Cursor(L, Trendy_Terminal.Input.Right);
+                Reset_Completions;
             elsif MK(Key_Backspace) = Input_Line then
                 TTI.Backspace (L);
+                Reset_Completions;
             elsif MK(Key_Delete) = Input_Line then
                 TTI.Delete (L);
+                Reset_Completions;
             elsif MK(Key_Home) = Input_Line then
                 TTI.Set_Cursor_Index (L, 1);
+                Reset_Completions;
             elsif MK(Key_End) = Input_Line then
                 TTI.Set_Cursor_Index (L, TTI.Length (L) + 1);
+                Reset_Completions;
             elsif MK(Key_Tab) = Input_Line then
                 if Completion_Fn /= null then
-                    L := Completion_Fn (L, 1);
+                    if Tab_Pos = 1 then
+                        Completions := Completion_Fn (L);
+                    end if;
+                    L := Completions (Tab_Pos);
+                    Tab_Pos := Tab_Pos + 1;
+                    Tab_Pos := Tab_Pos mod Integer (Completions.Length);
+                    if Tab_Pos = 0 then
+                        Tab_Pos := 1;
+                    end if;
                 end if;
             elsif ASU.Length (Input_Line) = 1 and then Should_Terminate_Input (Input_Line) then
                 return TTI.Current (L);
