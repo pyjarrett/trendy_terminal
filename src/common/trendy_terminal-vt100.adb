@@ -18,9 +18,13 @@ package body Trendy_Terminal.VT100 is
         Platform.Put (CSI & 'X');
     end Erase;
 
-    procedure Clear_Line is
+    procedure Beginning_Of_Line is
     begin
         Platform.Put (CSI & 'G');
+    end Beginning_Of_Line;
+
+    procedure Clear_Line is
+    begin
         Platform.Put (CSI & 'K');
     end Clear_Line;
 

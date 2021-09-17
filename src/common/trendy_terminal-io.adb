@@ -93,7 +93,7 @@ package body Trendy_Terminal.IO is
                 Print_Line (Line_Pos, TTI.Current (L));
             end if;
 
-            Edit_Pos.Col := TTI.Get_Cursor_Index(L);
+            Edit_Pos.Col := TTI.Get_Cursor_Index(L) + Line_Pos.Col - 1;
             VT100.Set_Cursor_Position (Edit_Pos);
 
             -- Get and process the new input.

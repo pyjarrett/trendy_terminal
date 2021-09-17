@@ -20,6 +20,7 @@ package Trendy_Terminal.VT100 is
 
     procedure Erase;
 
+    procedure Beginning_Of_Line;
     procedure Clear_Line;
 
     procedure Report_Cursor_Position;
