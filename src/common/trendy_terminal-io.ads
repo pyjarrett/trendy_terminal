@@ -17,6 +17,7 @@ package Trendy_Terminal.IO is
     procedure Put_Line (S : String);
     procedure Put_Line (S : ASU.Unbounded_String);
 
+    procedure Beginning_Of_Line;
     procedure Clear_Line;
     procedure New_Line (Num_Lines : Positive);
     procedure Set_Col (Column : Positive);

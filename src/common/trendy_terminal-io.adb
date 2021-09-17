@@ -21,6 +21,11 @@ package body Trendy_Terminal.IO is
         Put_Line (ASU.To_String(S));
     end Put_Line;
 
+    procedure Beginning_Of_Line is
+    begin
+        VT100.Beginning_Of_Line;
+    end Beginning_Of_Line;
+
     procedure Clear_Line is
     begin
         VT100.Clear_Line;
