@@ -9,6 +9,7 @@ with Ada.Characters.Latin_1;
 -- https://vt100.net/
 -- https://vt100.net/docs/vt510-rm/chapter4.html
 -- https://en.wiktionary.org/wiki/Appendix:Control_characters
+-- https://mudhalla.net/tintin/info/vt100/
 -- https://www.aivosto.com/articles/control-characters.html
 -- https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
 -- https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
