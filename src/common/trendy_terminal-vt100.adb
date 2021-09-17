@@ -20,7 +20,7 @@ package body Trendy_Terminal.VT100 is
 
     procedure Beginning_Of_Line is
     begin
-        Platform.Put (CSI & 'G');
+        Platform.Put (CSI & "1G");
     end Beginning_Of_Line;
 
     procedure Clear_Line is
