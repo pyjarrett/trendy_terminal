@@ -44,6 +44,7 @@ package body Trendy_Terminal.Maps is
         KM.Insert(VT100.CSI & (+"24~"), Key_F12);
 
         KM.Insert(Ada.Characters.Latin_1.HT & (+""), Key_Tab);
+        KM.Insert(VT100.CSI & (+"Z"), Key_Shift_Tab);
 
         return KM;
     end Make_Key_Map;
@@ -51,6 +52,17 @@ package body Trendy_Terminal.Maps is
     function Make_Key_Lookup_Map return Inverse_Key_Maps.Map is
         KM : Inverse_Key_Maps.Map;
     begin
+        -- https://vt100.net/docs/vt510-rm/DECFNK.html
+        --
+        -- 0,1  none
+        -- 2    Shift
+        -- 3    Alt
+        -- 4    Alt + Shift
+        -- 5    Control
+        -- 6    Control + Shift
+        -- 7    Alt + Control
+        -- 8    Alt + Control + Shift
+
         KM.Insert(Key_Up,    VT100.CSI & (+"A"));
         KM.Insert(Key_Down,  VT100.CSI & (+"B"));
         KM.Insert(Key_Right, VT100.CSI & (+"C"));
@@ -87,6 +99,7 @@ package body Trendy_Terminal.Maps is
         KM.Insert(Key_F12, VT100.CSI & (+"24~"));
 
         KM.Insert(Key_Tab, Ada.Characters.Latin_1.HT & (+""));
+        KM.Insert(Key_Shift_Tab, VT100.CSI & (+"Z"));
 
         return KM;
     end Make_Key_Lookup_Map;
