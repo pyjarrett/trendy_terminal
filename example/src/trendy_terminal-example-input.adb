@@ -1,41 +1,37 @@
+with Ada.Strings.Unbounded;
 with Ada.Text_IO;
+
+with Trendy_Terminal.Maps;
+with Trendy_Terminal.Platform;
 with Trendy_Terminal.VT100;
 
 package body Trendy_Terminal.Example.Input is
 
     package AIO renames Ada.Text_IO;
+    package ASU renames Ada.Strings.Unbounded;
     package TT renames Trendy_Terminal;
 
+    -- Name that input!
     procedure Run_Print_Input is
     begin
         loop
             declare
-                Input     : constant String := TT.Get_Input;
+                Input     : constant ASU.Unbounded_String := ASU.To_Unbounded_String (TT.Platform.Get_Input);
                 Key_Enter : constant := 13;
+                Inverse   : constant Trendy_Terminal.Maps.Key_Maps.Map := Trendy_Terminal.Maps.Make_Key_Map;
             begin
                 AIO.New_Line;
-                for X in 1 .. Input'Length loop
-                    if Character'Pos (Input (X)) = Key_Enter then
+                if Inverse.Contains (Input) then
+                    AIO.Put_Line (TT.Maps.Key'Image(Inverse(Input)));
+                end if;
+                for X in 1 .. ASU.Length (Input) loop
+                    if Character'Pos (ASU.Element (Input, X)) = Key_Enter then
                         return;
                     end if;
-                    AIO.Put_Line (Character'Pos (Input (X))'Image);
+                    AIO.Put_Line (Character'Pos (ASU.Element (Input, X))'Image);
                 end loop;
             end;
         end loop;
     end Run_Print_Input;
-
-    procedure Print_Cursor_Position is
-        Pos : constant Trendy_Terminal.Cursor_Position :=
-           Trendy_Terminal.Get_Cursor_Position;
-    begin
-        Ada.Text_IO.Put_Line (Pos.Row'Image & " " & Pos.Col'Image);
-    end Print_Cursor_Position;
-
-    procedure Run_Terminal_Editing is
-        Input : constant String := Trendy_Terminal.Debug_Get_Line;
-    begin
-        Ada.Text_IO.New_Line(2);
-        Ada.Text_IO.Put_Line ("Final input: " & Input);
-    end Run_Terminal_Editing;
 
 end Trendy_Terminal.Example.Input;
