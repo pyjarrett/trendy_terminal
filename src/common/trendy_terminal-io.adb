@@ -88,6 +88,19 @@ package body Trendy_Terminal.IO is
             Tab_Pos := 1;
             Completions.Clear;
         end Reset_Completions;
+
+        procedure Set_Tab_Pos (N : Integer) is
+        begin
+            Tab_Pos := N;
+            if Tab_Pos <= 0 then
+                Tab_Pos := Integer (Completions.Length);
+            else
+                Tab_Pos := Tab_Pos mod Integer (Completions.Length);
+                if Tab_Pos = 0 then
+                    Tab_Pos := Integer (Completions.Length);
+                end if;
+            end if;
+        end Set_Tab_Pos;
     begin
         Edit_Pos.Row := Line_Pos.Row;
 
@@ -122,16 +135,28 @@ package body Trendy_Terminal.IO is
             elsif MK(Key_End) = Input_Line then
                 TTI.Set_Cursor_Index (L, TTI.Length (L) + 1);
                 Reset_Completions;
+            elsif MK(Key_Shift_Tab) = Input_Line then
+                if Completion_Fn /= null then
+                    if Completions.Is_Empty then
+                        Completions := Completion_Fn (L);
+                    else
+                        Set_Tab_Pos (Tab_Pos - 1);
+                    end if;
+
+                    if not Completions.Is_Empty then
+                        L := Completions (Tab_Pos);
+                    end if;
+                end if;
             elsif MK(Key_Tab) = Input_Line then
                 if Completion_Fn /= null then
-                    if Tab_Pos = 1 then
+                    if Completions.Is_Empty then
                         Completions := Completion_Fn (L);
+                    else
+                        Set_Tab_Pos (Tab_Pos + 1);
                     end if;
-                    L := Completions (Tab_Pos);
-                    Tab_Pos := Tab_Pos + 1;
-                    Tab_Pos := Tab_Pos mod Integer (Completions.Length);
-                    if Tab_Pos = 0 then
-                        Tab_Pos := 1;
+
+                    if not Completions.Is_Empty then
+                        L := Completions (Tab_Pos);
                     end if;
                 end if;
             elsif ASU.Length (Input_Line) = 1 and then Should_Terminate_Input (Input_Line) then
