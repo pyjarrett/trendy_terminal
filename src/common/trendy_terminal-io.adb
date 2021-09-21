@@ -161,11 +161,10 @@ package body Trendy_Terminal.IO is
                 end if;
             elsif ASU.Length (Input_Line) = 1 and then Should_Terminate_Input (Input_Line) then
                 return TTI.Current (L);
-            end if;
-
-            -- Actual text was inserted.
-            -- TODO: Maybe add a "replace" mode?
-            if not KM.Contains (Input_Line) then
+            elsif not KM.Contains (Input_Line) then
+                -- Actual text was inserted.
+                -- TODO: Maybe add a "replace" mode?
+                Reset_Completions;
                 TTI.Insert (L, ASU.To_String (Input_Line));
             end if;
         end loop;
