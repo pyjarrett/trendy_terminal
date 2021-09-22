@@ -1,5 +1,6 @@
 with Ada.Characters.Latin_1;
 with Ada.Text_IO;
+with Ada.Unchecked_Conversion;
 with System;
 
 with Ada.Strings.Fixed;
@@ -114,11 +115,6 @@ package body Trendy_Terminal.Platform is
     procedure Put (C : Character) renames Ada.Text_IO.Put;
     procedure Put (S : String) renames Ada.Text_IO.Put;
 
-    procedure Print_Capabilities is
-    begin
-        null;
-    end Print_Capabilities;
-
     type VOIDP is new Interfaces.C.Strings.chars_ptr;
     function Read (File_Descriptor : Linux.FD; Buffer : VOIDP; Buffer_Size : Natural) return Integer
         with Import     => True,
@@ -162,7 +158,15 @@ package body Trendy_Terminal.Platform is
 
     function End_Of_Line return String is
     begin
-        return Ada.Characters.Latin_1.FF;
+        return (1 => Ada.Characters.Latin_1.FF);
     end End_Of_Line;
+
+    procedure Print_Configuration is
+        function To_Integer is new Ada.Unchecked_Conversion (Linux.Local_Flags, Integer);
+    begin
+        Ada.Text_IO.Put_Line ("Input Mode:  " & To_Integer (Std_Input.Settings.c_lflag)'Image);
+        Ada.Text_IO.Put_Line ("Output Mode: " & To_Integer (Std_Output.Settings.c_lflag)'Image);
+        Ada.Text_IO.Put_Line ("Error Mode:  " & To_Integer (Std_Error.Settings.c_lflag)'Image);
+    end Print_Configuration;
 
 end Trendy_Terminal.Platform;
