@@ -1,5 +1,6 @@
 with Ada.Characters.Latin_1;
 with Ada.Strings.Fixed;
+with Ada.Text_IO;
 
 with Trendy_Terminal.Maps;
 with Trendy_Terminal.VT100;
@@ -13,7 +14,8 @@ package body Trendy_Terminal.IO is
 
     procedure Put_Line(S : String) is
     begin
-        Put (S & Ada.Characters.Latin_1.CR & Ada.Characters.Latin_1.FF);
+        Put (S);
+        New_Line;
     end Put_Line;
 
     procedure Put_Line (S : ASU.Unbounded_String) is
@@ -31,11 +33,12 @@ package body Trendy_Terminal.IO is
         VT100.Clear_Line;
     end Clear_Line;
 
-    procedure New_Line (Num_Lines : Positive) is
+    procedure New_Line (Num_Lines : Positive := 1) is
     begin
         -- TODO: very inefficient
         for I in 1 .. Num_Lines loop
-            Put_Line ("");
+            VT100.Cursor_Next_Line;
+            VT100.Scroll_Up;
         end loop;
     end New_Line;
 

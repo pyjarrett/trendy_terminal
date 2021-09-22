@@ -160,4 +160,9 @@ package body Trendy_Terminal.Platform is
         end if;
     end Get_Input;
 
+    function End_Of_Line return String is
+    begin
+        return Ada.Characters.Latin_1.FF;
+    end End_Of_Line;
+
 end Trendy_Terminal.Platform;

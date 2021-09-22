@@ -225,4 +225,16 @@ package body Trendy_Terminal.Platform is
         end if;
     end Get_Input;
 
+    function End_Of_Line return String is
+    begin
+        return Ada.Characters.Latin_1.CR & Ada.Characters.Latin_1.FF;
+    end End_Of_Line;
+
+    procedure Print_Configuration is
+    begin
+        Ada.Text_IO.Put_Line ("Input Mode:  " & Win.To_DWORD (Std_Input.Settings)'Image);
+        Ada.Text_IO.Put_Line ("Output Mode: " & Win.To_DWORD (Std_Output.Settings)'Image);
+        Ada.Text_IO.Put_Line ("Error Mode:  " & Win.To_DWORD (Std_Error.Settings)'Image);
+    end Print_Configuration;
+
 end Trendy_Terminal.Platform;

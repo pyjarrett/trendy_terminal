@@ -35,4 +35,8 @@ package Trendy_Terminal.Platform is
     procedure Clear_Input_Buffer;
     function Get_Input return String;
 
+    function End_Of_Line return String;
+
+    procedure Print_Configuration;
+
 end Trendy_Terminal.Platform;

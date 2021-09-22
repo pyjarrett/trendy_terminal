@@ -5,13 +5,38 @@ with Trendy_Terminal.Platform;
 package body Trendy_Terminal.VT100 is
     procedure Cursor_Left is
     begin
-        Platform.Put (CSI & 'D');
+        Platform.Put (CSI & "1D");
     end Cursor_Left;
 
     procedure Cursor_Right is
     begin
-        Platform.Put (CSI & 'C');
+        Platform.Put (CSI & "1C");
     end Cursor_Right;
+
+    procedure Cursor_Down is
+    begin
+        Platform.Put (CSI & "B");
+    end Cursor_Down;
+
+    procedure Cursor_Up is
+    begin
+        Platform.Put (CSI & "A");
+    end Cursor_Up;
+
+    procedure Scroll_Down is
+    begin
+        Platform.Put (CSI & "T");
+    end Scroll_Down;
+
+    procedure Scroll_Up is
+    begin
+        Platform.Put (CSI & "S");
+    end Scroll_Up;
+
+    procedure Cursor_Next_Line is
+    begin
+        Platform.Put (CSI & "E");
+    end Cursor_Next_Line;
 
     procedure Erase is
     begin

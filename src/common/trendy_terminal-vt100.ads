@@ -18,6 +18,13 @@ package Trendy_Terminal.VT100 is
 
     procedure Cursor_Left;
     procedure Cursor_Right;
+    procedure Cursor_Down;
+    procedure Cursor_Up;
+
+    procedure Scroll_Down;
+    procedure Scroll_Up;
+
+    procedure Cursor_Next_Line;
 
     procedure Erase;
 

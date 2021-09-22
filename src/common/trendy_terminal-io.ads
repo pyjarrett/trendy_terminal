@@ -19,7 +19,7 @@ package Trendy_Terminal.IO is
 
     procedure Beginning_Of_Line;
     procedure Clear_Line;
-    procedure New_Line (Num_Lines : Positive);
+    procedure New_Line (Num_Lines : Positive := 1);
     procedure Set_Col (Column : Positive);
 
     type Format_Function is access function (S : String) return String;
