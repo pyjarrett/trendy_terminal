@@ -158,7 +158,7 @@ package body Trendy_Terminal.Platform is
 
     function End_Of_Line return String is
     begin
-        return (1 => Ada.Characters.Latin_1.FF);
+        return (1 => Ada.Characters.Latin_1.LF);
     end End_Of_Line;
 
     procedure Print_Configuration is

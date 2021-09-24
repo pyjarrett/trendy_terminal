@@ -37,8 +37,7 @@ package body Trendy_Terminal.IO is
     begin
         -- TODO: very inefficient
         for I in 1 .. Num_Lines loop
-            VT100.Cursor_Next_Line;
-            VT100.Scroll_Up;
+            Put (Trendy_Terminal.Platform.End_Of_Line);
         end loop;
     end New_Line;
 

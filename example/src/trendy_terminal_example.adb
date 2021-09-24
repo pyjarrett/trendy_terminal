@@ -1,6 +1,7 @@
 with Ada.Text_IO;
 
 with Trendy_Terminal.Environments;
+with Trendy_Terminal.IO;
 with Trendy_Terminal.Platform;
 with Trendy_Terminal.Example.Input; use Trendy_Terminal.Example.Input;
 
@@ -15,6 +16,13 @@ begin
     Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Echo, False);
     Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Line_Input, False);
     Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Escape_Sequences, True);
+
+    Trendy_Terminal.IO.Put_Line ("Hello, world.");
+    Trendy_Terminal.IO.Put_Line ("Columns");
+    Trendy_Terminal.IO.Put_Line ("12345678901234567890123456789012345678901234567890");
+    Trendy_Terminal.IO.Put ("Move to column: ");
+    Trendy_Terminal.IO.Set_Col (20);
+    Trendy_Terminal.IO.Put_Line ("At column 20");
 
     Trendy_Terminal.Example.Input.Run_Print_Input;
 

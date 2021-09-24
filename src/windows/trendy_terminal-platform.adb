@@ -170,7 +170,15 @@ package body Trendy_Terminal.Platform is
         case Setting is
             when Escape_Sequences =>
                 Std_Output.Settings (Win.ENABLE_VIRTUAL_TERMINAL_PROCESSING) := Enabled;
+                Std_Output.Settings (Win.ENABLE_WRAP_AT_EOL_OUTPUT)          := True;
+                Std_Output.Settings (Win.DISABLE_NEWLINE_AUTO_RETURN)        := False;
+                Std_Output.Settings (Win.ENABLE_PROCESSED_OUTPUT)            := True;
+
                 Std_Error.Settings (Win.ENABLE_VIRTUAL_TERMINAL_PROCESSING)  := Enabled;
+                Std_Error.Settings (Win.ENABLE_WRAP_AT_EOL_OUTPUT)           := True;
+                Std_Error.Settings (Win.DISABLE_NEWLINE_AUTO_RETURN)         := False;
+                Std_Error.Settings (Win.ENABLE_PROCESSED_OUTPUT)             := True;
+
                 Std_Input.Settings (Win.ENABLE_VIRTUAL_TERMINAL_INPUT)       := Enabled;
                 Apply(Std_Input);
                 Apply(Std_Output);
@@ -227,7 +235,7 @@ package body Trendy_Terminal.Platform is
 
     function End_Of_Line return String is
     begin
-        return Ada.Characters.Latin_1.CR & Ada.Characters.Latin_1.FF;
+        return Ada.Characters.Latin_1.CR & Ada.Characters.Latin_1.LF;
     end End_Of_Line;
 
     procedure Print_Configuration is
