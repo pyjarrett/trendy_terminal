@@ -120,24 +120,6 @@ package body Trendy_Terminal.Platform is
         with Import     => True,
              Convention => C;
 
-    procedure Clear_Input_Buffer is
-        Buffer_Size  : constant := 1024;
-        Buffer       : aliased Interfaces.C.char_array := (1 .. Interfaces.C.size_t(Buffer_Size) => Interfaces.C.nul);
-        Chars_Read   : Integer;
-        use all type Interfaces.C.size_t;
-    begin
-        -- Put something into the buffer to ensure it won't block.
-        -- It'd be better to peek than do this, but that might fail on named
-        -- pipes for inputs and this is just a simple, but hacky way of doing it.
-        Put (' ');
-        loop
-            Chars_Read := Read (Linux.fileno (Std_Input.File),
-                VOIDP (Interfaces.C.Strings.To_Chars_Ptr (Buffer'Unchecked_Access)),
-                Buffer_Size);
-            exit when Chars_Read < Buffer_Size;
-        end loop;
-    end Clear_Input_Buffer;
-
     -- Gets an entire input line from one keypress.  E.g. all the characters
     -- received for a controlling keypress, such as an arrow key.
     function Get_Input return String is

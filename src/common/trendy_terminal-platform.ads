@@ -32,7 +32,6 @@ package Trendy_Terminal.Platform is
     procedure Put (C : Character);
     procedure Put (S : String);
 
-    procedure Clear_Input_Buffer;
     function Get_Input return String;
 
     function End_Of_Line return String;

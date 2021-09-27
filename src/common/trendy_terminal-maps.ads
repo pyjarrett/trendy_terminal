@@ -25,5 +25,7 @@ package Trendy_Terminal.Maps is
 
     function Sequence_For (K : Key) return String;
     function Is_Key (Sequence : String) return Boolean;
+    function Key_For (Sequence : String) return Key
+        with Pre => Is_Key (Sequence);
 
 end Trendy_Terminal.Maps;

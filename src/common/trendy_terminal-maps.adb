@@ -120,4 +120,6 @@ package body Trendy_Terminal.Maps is
 
     function Is_Key (Sequence : String) return Boolean is (KM.Contains (ASU.To_Unbounded_String (Sequence)));
 
+    function Key_For (Sequence : String) return Key is (KM (ASU.To_Unbounded_String (Sequence)));
+
 end Trendy_Terminal.Maps;

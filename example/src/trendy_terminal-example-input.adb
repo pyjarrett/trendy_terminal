@@ -18,12 +18,12 @@ package body Trendy_Terminal.Example.Input is
             declare
                 Input     : constant ASU.Unbounded_String := ASU.To_Unbounded_String (TT.Platform.Get_Input);
                 Key_Enter : constant := 13;
-                Inverse   : constant Trendy_Terminal.Maps.Key_Maps.Map := Trendy_Terminal.Maps.Make_Key_Map;
             begin
                 AIO.New_Line;
-                if Inverse.Contains (Input) then
-                    AIO.Put_Line (TT.Maps.Key'Image(Inverse(Input)));
+                if Trendy_Terminal.Maps.Is_Key (ASU.To_String (Input)) then
+                    AIO.Put_Line (TT.Maps.Key'Image (Trendy_Terminal.Maps.Key_For (ASU.To_String (Input))));
                 end if;
+
                 for X in 1 .. ASU.Length (Input) loop
                     if Character'Pos (ASU.Element (Input, X)) = Key_Enter then
                         return;

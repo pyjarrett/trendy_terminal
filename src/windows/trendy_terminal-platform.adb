@@ -42,16 +42,21 @@ package body Trendy_Terminal.Platform is
     -- Output
     ---------------------------------------------------------------------------
 
-    procedure Put(C : Character) is
+    procedure Put (H : Win.Handle; C : Character) is
         S       : constant String := (1 => C);
         C_Array : aliased Interfaces.C.char_array := Interfaces.C.To_C(S);
         Native  : aliased Interfaces.C.Strings.chars_ptr := Interfaces.C.Strings.To_Chars_Ptr(C_array'Unchecked_Access);
         Written : aliased Win.DWORD;
     begin
-        if Win.WriteFile (Std_Output.Handle, Win.LPCVOID(Native), S'Length, Written'Unchecked_Access, 0) = 0 then
+        if Win.WriteFile (H, Win.LPCVOID(Native), S'Length, Written'Unchecked_Access, 0) = 0 then
             null;
         end if;
         Interfaces.C.Strings.Free(Native);
+    end Put;
+
+    procedure Put(C : Character) is
+    begin
+        Put (Std_Output.Handle, C);
     end Put;
 
     procedure Put(S : String) is
@@ -188,33 +193,6 @@ package body Trendy_Terminal.Platform is
     ---------------------------------------------------------------------------
     -- Inputs
     ---------------------------------------------------------------------------
-
-    -- The input stream might have existing inputs, and it may be necessary to
-    -- discard these.  A use case would be clearing the input buffer to get
-    -- VT100 sequences.
-    procedure Clear_Input_Buffer is
-        Buffer_Size  : constant := 1024;
-        Buffer       : aliased Interfaces.C.char_array := (1 .. Interfaces.C.size_t(Buffer_Size) => Interfaces.C.nul);
-        Chars_Read   : aliased Win.DWORD;
-        Result       : Win.BOOL;
-        use all type Win.DWORD;
-    begin
-        -- Put something into the buffer to ensure it won't block.
-        -- It'd be better to peek than do this, but that might fail on named
-        -- pipes for inputs and this is just a simple, but hacky way of doing it.
-        Put (' ');
-        loop
-            -- TODO: Support UTF-8
-            Result := Win.ReadConsoleA (
-                Std_Input.Handle,
-                Win.LPVOID(Interfaces.C.Strings.To_Chars_Ptr(Buffer'Unchecked_Access)),
-                Buffer_Size,
-                Chars_Read'Unchecked_Access,
-                0);
-            exit when Chars_Read < Buffer_Size;
-        end loop;
-        pragma Unreferenced (Result);
-    end Clear_Input_Buffer;
 
     -- Gets an entire input line from one keypress.  E.g. all the characters
     -- received for a controlling keypress, such as an arrow key.

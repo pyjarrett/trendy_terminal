@@ -1,4 +1,5 @@
 with Ada.Strings.Fixed;
+with Ada.Text_IO;
 
 with Trendy_Terminal.Maps;
 with Trendy_Terminal.Platform;
@@ -71,7 +72,6 @@ package body Trendy_Terminal.VT100 is
     function Get_Cursor_Position return VT100.Cursor_Position is
     begin
         loop
-            Platform.Clear_Input_Buffer;
             VT100.Report_Cursor_Position;
             declare
                 Result : constant String := Platform.Get_Input;
