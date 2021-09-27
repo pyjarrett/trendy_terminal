@@ -3,6 +3,7 @@ with Ada.Strings.Unbounded;
 
 with Trendy_Terminal.Input;
 with Trendy_Terminal.Platform;
+with Trendy_Terminal.VT100;
 
 package Trendy_Terminal.IO is
     package ASU renames Ada.Strings.Unbounded;
@@ -41,6 +42,6 @@ package Trendy_Terminal.IO is
     function Get_Line (Format_Fn     : Format_Function := null;
                        Completion_Fn : Completion_Function := null) return String;
 
-    function Get_Cursor_Position return Cursor_Position;
+    function Get_Cursor_Position return VT100.Cursor_Position;
 
 end Trendy_Terminal.IO;

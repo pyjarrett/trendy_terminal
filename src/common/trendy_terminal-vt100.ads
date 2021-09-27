@@ -33,6 +33,13 @@ package Trendy_Terminal.VT100 is
 
     procedure Report_Cursor_Position;
 
+    -- A position on screen.  Due to scrolling it is possible for these values
+    -- to be negative.
+    type Cursor_Position is record
+        Row : Integer;
+        Col : Integer;
+    end record;
+
     procedure Set_Cursor_Position (C : Cursor_Position);
 
 end Trendy_Terminal.VT100;
