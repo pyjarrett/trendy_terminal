@@ -1,16 +1,7 @@
-with Ada.Characters.Latin_1;
-with Ada.Text_IO;
+with Interfaces.C.Strings;
 with System;
 
-with Ada.Strings.Fixed;
-with Interfaces.C.Strings;
-
-with Trendy_Terminal.Input;
-with Trendy_Terminal.Maps;
-with Trendy_Terminal.VT100;
-
 package Trendy_Terminal.Linux is
-    package AIO renames Ada.Text_IO;
 
     ---------------------------------------------------------------------------
     -- Interfacing with C

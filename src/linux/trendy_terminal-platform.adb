@@ -1,19 +1,14 @@
-with Ada.Characters.Latin_1;
 with Ada.Text_IO;
 with Ada.Unchecked_Conversion;
-with System;
 
-with Ada.Strings.Fixed;
 with Interfaces.C.Strings;
 
-with Trendy_Terminal.Input;
+with System;
+
 with Trendy_Terminal.Linux;
 with Trendy_Terminal.Maps;
-with Trendy_Terminal.VT100;
 
 package body Trendy_Terminal.Platform is
-    package AIO renames Ada.Text_IO;
-
     use type Linux.BOOL;
 
     ---------------------------------------------------------------------------
@@ -60,7 +55,7 @@ package body Trendy_Terminal.Platform is
     is
     begin
         if Linux.tcsetattr (Stream.File_Descriptor, Linux.TCSANOW, Stream.Settings'Address) /= 0 then
-            AIO.Put_Line ("Unable to change settings.");
+            Ada.Text_IO.Put_Line ("Unable to change settings.");
         end if;
     end Require_Settings_Change;
 
@@ -70,7 +65,7 @@ package body Trendy_Terminal.Platform is
     begin
         if not Make_Handle (Linux.stdin, Std_Input) or else not Make_Handle (Linux.stdout, Std_Output)
             or else not Make_Handle (Linux.stderr, Std_Error) then
-            AIO.Put_Line ("Unable to get standard stream handles.");
+            Ada.Text_IO.Put_Line ("Unable to get standard stream handles.");
         end if;
 
         -- Save the startup settings.
@@ -140,7 +135,7 @@ package body Trendy_Terminal.Platform is
 
     function End_Of_Line return String is
     begin
-        return (1 => Ada.Characters.Latin_1.LF);
+        return (1 => Maps.Characters.LF);
     end End_Of_Line;
 
     procedure Print_Configuration is
