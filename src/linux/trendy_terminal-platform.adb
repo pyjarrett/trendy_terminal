@@ -129,7 +129,7 @@ package body Trendy_Terminal.Platform is
         -- Put something into the buffer to ensure it won't block.
         -- It'd be better to peek than do this, but that might fail on named
         -- pipes for inputs and this is just a simple, but hacky way of doing it.
-        VT100.Report_Cursor_Position;
+        Put (' ');
         loop
             Chars_Read := Read (Linux.fileno (Std_Input.File),
                 VOIDP (Interfaces.C.Strings.To_Chars_Ptr (Buffer'Unchecked_Access)),

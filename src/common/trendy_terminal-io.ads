@@ -18,8 +18,6 @@ package Trendy_Terminal.IO is
     procedure Put_Line (S : String);
     procedure Put_Line (S : ASU.Unbounded_String);
 
-    procedure Beginning_Of_Line;
-    procedure Clear_Line;
     procedure New_Line (Num_Lines : Positive := 1);
     procedure Set_Col (Column : Positive);
 
@@ -41,7 +39,5 @@ package Trendy_Terminal.IO is
 
     function Get_Line (Format_Fn     : Format_Function := null;
                        Completion_Fn : Completion_Function := null) return String;
-
-    function Get_Cursor_Position return VT100.Cursor_Position;
 
 end Trendy_Terminal.IO;

@@ -68,4 +68,31 @@ package body Trendy_Terminal.VT100 is
         Platform.Put (CSI & Trim (C.Row'Image, Left) & ";" & Trim (C.Col'Image, Left) & "H");
     end Set_Cursor_Position;
 
+    function Get_Cursor_Position return VT100.Cursor_Position is
+    begin
+        loop
+            Platform.Clear_Input_Buffer;
+            VT100.Report_Cursor_Position;
+            declare
+                Result : constant String := Platform.Get_Input;
+                Semicolon_Index : constant Natural := Ada.Strings.Fixed.Index(Result, ";", 1);
+                Row : Integer := 1;
+                Col : Integer := 1;
+            begin
+                -- The cursor position is reported as
+                -- ESC [ ROW ; COL R
+
+                -- May throw on bad parse.
+                Row := Integer'Value(Result(3 .. Semicolon_Index - 1));
+                Col := Integer'Value(Result(Semicolon_Index + 1 .. Result'Length - 1));
+
+                return VT100.Cursor_Position'(Row => Row, Col => Col);
+            exception
+                -- Bad parse due to existing input on the line.
+                when Constraint_Error =>
+                    null;
+            end;
+        end loop;
+    end Get_Cursor_Position;
+
 end Trendy_Terminal.VT100;

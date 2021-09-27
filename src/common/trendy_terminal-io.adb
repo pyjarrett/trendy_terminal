@@ -22,16 +22,6 @@ package body Trendy_Terminal.IO is
         Put_Line (ASU.To_String(S));
     end Put_Line;
 
-    procedure Beginning_Of_Line is
-    begin
-        VT100.Beginning_Of_Line;
-    end Beginning_Of_Line;
-
-    procedure Clear_Line is
-    begin
-        VT100.Clear_Line;
-    end Clear_Line;
-
     procedure New_Line (Num_Lines : Positive := 1) is
     begin
         -- TODO: very inefficient
@@ -41,7 +31,7 @@ package body Trendy_Terminal.IO is
     end New_Line;
 
     procedure Set_Col (Column : Positive) is
-        Cursor_Pos : VT100.Cursor_Position := Get_Cursor_Position;
+        Cursor_Pos : VT100.Cursor_Position := VT100.Get_Cursor_Position;
     begin
         Cursor_Pos.Col := Column;
         VT100.Set_Cursor_Position (Cursor_Pos);
@@ -68,7 +58,7 @@ package body Trendy_Terminal.IO is
 
         Input_Line  : ASU.Unbounded_String;
         L           : Lines.Line;
-        Line_Pos    : constant VT100.Cursor_Position := Get_Cursor_Position;
+        Line_Pos    : constant VT100.Cursor_Position := VT100.Get_Cursor_Position;
         Edit_Pos    : VT100.Cursor_Position := Line_Pos;
         Tab_Pos     : Integer := 1;
         Completions : Line_Vectors.Vector;
@@ -167,32 +157,5 @@ package body Trendy_Terminal.IO is
             end if;
         end loop;
     end Get_Line;
-
-    function Get_Cursor_Position return VT100.Cursor_Position is
-    begin
-        loop
-            Platform.Clear_Input_Buffer;
-            VT100.Report_Cursor_Position;
-            declare
-                Result : constant String := Platform.Get_Input;
-                Semicolon_Index : constant Natural := Ada.Strings.Fixed.Index(Result, ";", 1);
-                Row : Integer := 1;
-                Col : Integer := 1;
-            begin
-                -- The cursor position is reported as
-                -- ESC [ ROW ; COL R
-
-                -- May throw on bad parse.
-                Row := Integer'Value(Result(3 .. Semicolon_Index - 1));
-                Col := Integer'Value(Result(Semicolon_Index + 1 .. Result'Length - 1));
-
-                return VT100.Cursor_Position'(Row => Row, Col => Col);
-            exception
-                -- Bad parse due to existing input on the line.
-                when Constraint_Error =>
-                    null;
-            end;
-        end loop;
-    end Get_Cursor_Position;
 
 end Trendy_Terminal.IO;
