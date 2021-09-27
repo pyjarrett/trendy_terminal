@@ -1,8 +1,12 @@
+with Ada.Characters.Latin_1;
 with Ada.Containers.Ordered_Maps;
 with Ada.Strings.Unbounded;
 
 package Trendy_Terminal.Maps is
     package ASU renames Ada.Strings.Unbounded;
+    package Characters renames Ada.Characters.Latin_1;
+
+    CSI : constant String := Characters.ESC & "[";
 
     type Key is (Key_Up, Key_Left, Key_Right, Key_Down,
                   Key_F1, Key_F2, Key_F3, Key_F4,
@@ -19,15 +23,17 @@ package Trendy_Terminal.Maps is
                   Key_Ctrl_Up, Key_Ctrl_Left, Key_Ctrl_Right, Key_Ctrl_Down
                   );
 
-    package Key_Maps is new Ada.Containers.Ordered_Maps (Key_Type => ASU.Unbounded_String,
-                                                         Element_Type => Key,
-                                                         "<" => ASU."<",
-                                                         "=" => "=");
+    package Key_Maps is new Ada.Containers.Ordered_Maps (
+        Key_Type     => ASU.Unbounded_String,
+        Element_Type => Key,
+        "<"          => ASU."<",
+        "="          => "=");
 
-    package Inverse_Key_Maps is new Ada.Containers.Ordered_Maps (Key_Type => Key,
-                                                         Element_Type => ASU.Unbounded_String,
-                                                         "<" => "<",
-                                                         "=" => ASU."=");
+    package Inverse_Key_Maps is new Ada.Containers.Ordered_Maps (
+        Key_Type     => Key,
+        Element_Type => ASU.Unbounded_String,
+        "<"          => "<",
+        "="          => ASU."=");
 
     function Make_Key_Map return Key_Maps.Map;
     function Make_Key_Lookup_Map return Inverse_Key_Maps.Map;

@@ -1,8 +1,11 @@
 with Ada.Strings.Fixed;
 
+with Trendy_Terminal.Maps;
 with Trendy_Terminal.Platform;
 
 package body Trendy_Terminal.VT100 is
+    use Trendy_Terminal.Maps;
+
     procedure Cursor_Left is
     begin
         Platform.Put (CSI & "1D");
