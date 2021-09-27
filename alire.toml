@@ -1,6 +1,7 @@
 name = "trendy_terminal"
 description = "Terminal options, setup, tab completion and hinting."
 version = "0.0.2"
+website = "https://github.com/pyjarrett/trendy_terminal"
 
 authors = ["Paul Jarrett"]
 maintainers = ["Paul Jarrett <jarrett.paul.young@gmail.com>"]
