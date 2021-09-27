@@ -2,6 +2,18 @@ package body Trendy_Terminal.Maps is
     use all type ASU.Unbounded_String;
     function "+"(S : String) return ASU.Unbounded_String renames ASU.To_Unbounded_String;
 
+    package Key_Maps is new Ada.Containers.Ordered_Maps (
+        Key_Type     => ASU.Unbounded_String,
+        Element_Type => Key,
+        "<"          => ASU."<",
+        "="          => "=");
+
+    package Inverse_Key_Maps is new Ada.Containers.Ordered_Maps (
+        Key_Type     => Key,
+        Element_Type => ASU.Unbounded_String,
+        "<"          => "<",
+        "="          => ASU."=");
+
     function Make_Key_Map return Key_Maps.Map is
         KM : Key_Maps.Map;
     begin
@@ -100,4 +112,12 @@ package body Trendy_Terminal.Maps is
 
         return KM;
     end Make_Key_Lookup_Map;
+
+    KM : constant Key_Maps.Map := Make_Key_Map;
+    MK : constant Inverse_Key_Maps.Map := Make_Key_Lookup_Map;
+
+    function Sequence_For (K : Key) return String is (ASU.To_String (MK(K)));
+
+    function Is_Key (Sequence : String) return Boolean is (KM.Contains (ASU.To_Unbounded_String (Sequence)));
+
 end Trendy_Terminal.Maps;

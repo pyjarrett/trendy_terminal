@@ -23,18 +23,7 @@ package Trendy_Terminal.Maps is
                   Key_Ctrl_Up, Key_Ctrl_Left, Key_Ctrl_Right, Key_Ctrl_Down
                   );
 
-    package Key_Maps is new Ada.Containers.Ordered_Maps (
-        Key_Type     => ASU.Unbounded_String,
-        Element_Type => Key,
-        "<"          => ASU."<",
-        "="          => "=");
+    function Sequence_For (K : Key) return String;
+    function Is_Key (Sequence : String) return Boolean;
 
-    package Inverse_Key_Maps is new Ada.Containers.Ordered_Maps (
-        Key_Type     => Key,
-        Element_Type => ASU.Unbounded_String,
-        "<"          => "<",
-        "="          => ASU."=");
-
-    function Make_Key_Map return Key_Maps.Map;
-    function Make_Key_Lookup_Map return Inverse_Key_Maps.Map;
 end Trendy_Terminal.Maps;
