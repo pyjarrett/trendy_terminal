@@ -62,13 +62,12 @@ package body Trendy_Terminal.IO is
     function Get_Line(Format_Fn     : Format_Function := null;
                       Completion_Fn : Completion_Function := null) return String
     is
-        package TTI renames Trendy_Terminal.Input;
         use Trendy_Terminal.Maps;
         use all type ASU.Unbounded_String;
         use all type Ada.Containers.Count_Type;
 
         Input_Line  : ASU.Unbounded_String;
-        L           : Trendy_Terminal.Input.Line_Input;
+        L           : Lines.Line;
         Line_Pos    : constant VT100.Cursor_Position := Get_Cursor_Position;
         Edit_Pos    : VT100.Cursor_Position := Line_Pos;
         Tab_Pos     : Integer := 1;
@@ -105,34 +104,34 @@ package body Trendy_Terminal.IO is
 
         loop
             if Format_Fn /= null then
-                Print_Line (Line_Pos, Format_Fn (TTI.Current (L)));
+                Print_Line (Line_Pos, Format_Fn (Lines.Current (L)));
             else
-                Print_Line (Line_Pos, TTI.Current (L));
+                Print_Line (Line_Pos, Lines.Current (L));
             end if;
 
-            Edit_Pos.Col := TTI.Get_Cursor_Index(L) + Line_Pos.Col - 1;
+            Edit_Pos.Col := Lines.Get_Cursor_Index(L) + Line_Pos.Col - 1;
             VT100.Set_Cursor_Position (Edit_Pos);
 
             -- Get and process the new input.
             Input_Line := ASU.To_Unbounded_String(Platform.Get_Input);
 
             if Maps.Sequence_For(Key_Left) = Input_Line then
-                TTI.Move_Cursor(L, Trendy_Terminal.Input.Left);
+                Lines.Move_Cursor(L, Lines.Left);
                 Reset_Completions;
             elsif Maps.Sequence_For (Key_Right) = Input_Line then
-                TTI.Move_Cursor(L, Trendy_Terminal.Input.Right);
+                Lines.Move_Cursor(L, Lines.Right);
                 Reset_Completions;
             elsif Maps.Sequence_For (Key_Backspace) = Input_Line then
-                TTI.Backspace (L);
+                Lines.Backspace (L);
                 Reset_Completions;
             elsif Maps.Sequence_For (Key_Delete) = Input_Line then
-                TTI.Delete (L);
+                Lines.Delete (L);
                 Reset_Completions;
             elsif Maps.Sequence_For (Key_Home) = Input_Line then
-                TTI.Set_Cursor_Index (L, 1);
+                Lines.Set_Cursor_Index (L, 1);
                 Reset_Completions;
             elsif Maps.Sequence_For (Key_End) = Input_Line then
-                TTI.Set_Cursor_Index (L, TTI.Length (L) + 1);
+                Lines.Set_Cursor_Index (L, Lines.Length (L) + 1);
                 Reset_Completions;
             elsif Maps.Sequence_For (Key_Shift_Tab) = Input_Line then
                 if Completion_Fn /= null then
@@ -159,12 +158,12 @@ package body Trendy_Terminal.IO is
                     end if;
                 end if;
             elsif ASU.Length (Input_Line) = 1 and then Should_Terminate_Input (Input_Line) then
-                return TTI.Current (L);
+                return Lines.Current (L);
             elsif not Maps.Is_Key (ASU.To_String (Input_Line)) then
                 -- Actual text was inserted.
                 -- TODO: Maybe add a "replace" mode?
                 Reset_Completions;
-                TTI.Insert (L, ASU.To_String (Input_Line));
+                Lines.Insert (L, ASU.To_String (Input_Line));
             end if;
         end loop;
     end Get_Line;

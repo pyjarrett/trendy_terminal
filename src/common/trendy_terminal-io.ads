@@ -1,7 +1,7 @@
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
 
-with Trendy_Terminal.Input;
+with Trendy_Terminal.Lines;
 with Trendy_Terminal.Platform;
 with Trendy_Terminal.VT100;
 
@@ -27,8 +27,8 @@ package Trendy_Terminal.IO is
 
     package Line_Vectors is new Ada.Containers.Vectors(
             Index_Type   => Positive,
-            Element_Type => Trendy_Terminal.Input.Line_Input,
-            "="          => Trendy_Terminal.Input."="
+            Element_Type => Trendy_Terminal.Lines.Line,
+            "="          => Trendy_Terminal.Lines."="
     );
 
     -- Attempts to complete a line.
@@ -36,7 +36,7 @@ package Trendy_Terminal.IO is
     -- Completion_Index is the N'th attempted completion of the line.
     -- Shift-tab should decrease the Completion_Index,
     -- tab should increase the Completion_Index.
-    type Completion_Function is access function (L : Input.Line_Input)
+    type Completion_Function is access function (L : Lines.Line)
         return Line_Vectors.Vector;
 
     function Get_Line (Format_Fn     : Format_Function := null;

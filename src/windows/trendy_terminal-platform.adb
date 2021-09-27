@@ -4,7 +4,6 @@ with Ada.Unchecked_Conversion;
 
 with Interfaces.C.Strings;
 
-with Trendy_Terminal.Input;
 with Trendy_Terminal.VT100;
 
 with Trendy_Terminal.Windows;
