@@ -60,8 +60,7 @@ package body Trendy_Terminal.Platform is
 
     procedure Put (H : Win.Handle; C : Character) is
         S       : constant String := (1 => C);
-        C_Array : aliased Interfaces.C.char_array := Interfaces.C.To_C(S);
-        Native  : aliased Interfaces.C.Strings.chars_ptr := Interfaces.C.Strings.To_Chars_Ptr(C_array'Unchecked_Access);
+        Native  : aliased Interfaces.C.Strings.chars_ptr := Interfaces.C.Strings.New_String(S);
         Written : aliased Win.DWORD;
     begin
         if Win.WriteFile (H, Win.LPCVOID(Native), S'Length, Written'Unchecked_Access, 0) = 0 then
