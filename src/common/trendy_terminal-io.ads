@@ -55,7 +55,7 @@ package Trendy_Terminal.IO is
 
     -- Line editing
     type Line_Editor is interface;
-    function Get_Line (E: in out Line_Editor'Class) return String;
+    function Get_Line (Editor : in out Line_Editor'Class) return String;
 
     function Format   (E : in out Line_Editor; L : Lines.Line) return Lines.Line is abstract;
     function Complete (E : in out Line_Editor; L : Lines.Line) return Line_Vectors.Vector is abstract;

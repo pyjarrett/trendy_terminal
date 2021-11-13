@@ -70,6 +70,13 @@ package body Trendy_Terminal.IO is
     function Get_Line(Format_Fn     : Format_Function := null;
                       Completion_Fn : Completion_Function := null) return String
     is
+        Editor : Stateless_Line_Editor := (Format_Fn     => Format_Fn,
+                                           Completion_Fn => Completion_Fn);
+    begin
+        return Get_Line (Editor);
+    end Get_Line;
+
+    function Get_Line (Editor : in out Line_Editor'Class) return String is
         use Trendy_Terminal.Maps;
         use all type ASU.Unbounded_String;
         use all type Ada.Containers.Count_Type;
@@ -80,9 +87,6 @@ package body Trendy_Terminal.IO is
         Edit_Pos    : VT100.Cursor_Position := Line_Pos;
         Tab_Pos     : Integer := 1;
         Completions : Line_Vectors.Vector;
-
-        Editor      : Stateless_Line_Editor := (Format_Fn => Format_Fn,
-                                                Completion_Fn => Completion_Fn);
 
         -- Prints an updated input line at the given starting position.
         procedure Print_Line (Pos : VT100.Cursor_Position; S : String) is
@@ -114,11 +118,7 @@ package body Trendy_Terminal.IO is
         Edit_Pos.Row := Line_Pos.Row;
 
         loop
-            if Format_Fn /= null then
-                Print_Line (Line_Pos, Lines.Current (Format_Fn (L)));
-            else
-                Print_Line (Line_Pos, Lines.Current (L));
-            end if;
+            Print_Line (Line_Pos, Lines.Current (Editor.Format (L)));
 
             Edit_Pos.Col := Lines.Get_Cursor_Index(L) + Line_Pos.Col - 1;
             VT100.Set_Cursor_Position (Edit_Pos);
@@ -145,28 +145,24 @@ package body Trendy_Terminal.IO is
                 Lines.Set_Cursor_Index (L, Lines.Length (L) + 1);
                 Reset_Completions;
             elsif Maps.Sequence_For (Key_Shift_Tab) = Input_Line then
-                if Completion_Fn /= null then
-                    if Completions.Is_Empty then
-                        Completions := Completion_Fn (L);
-                    else
-                        Set_Tab_Pos (Tab_Pos - 1);
-                    end if;
+                if Completions.Is_Empty then
+                    Completions := Editor.Complete (L);
+                else
+                    Set_Tab_Pos (Tab_Pos - 1);
+                end if;
 
-                    if not Completions.Is_Empty then
-                        L := Completions (Tab_Pos);
-                    end if;
+                if not Completions.Is_Empty then
+                    L := Completions (Tab_Pos);
                 end if;
             elsif Maps.Sequence_For (Key_Tab) = Input_Line then
-                if Completion_Fn /= null then
                     if Completions.Is_Empty then
-                        Completions := Completion_Fn (L);
-                    else
-                        Set_Tab_Pos (Tab_Pos + 1);
-                    end if;
+                    Completions := Editor.Complete (L);
+                else
+                    Set_Tab_Pos (Tab_Pos + 1);
+                end if;
 
-                    if not Completions.Is_Empty then
-                        L := Completions (Tab_Pos);
-                    end if;
+                if not Completions.Is_Empty then
+                    L := Completions (Tab_Pos);
                 end if;
             elsif ASU.Length (Input_Line) = 1 and then Should_Terminate_Input (Input_Line) then
                 return Lines.Current (L);
@@ -177,11 +173,6 @@ package body Trendy_Terminal.IO is
                 Lines.Insert (L, ASU.To_String (Input_Line));
             end if;
         end loop;
-    end Get_Line;
-
-    function Get_Line (E : in out Line_Editor'Class) return String is
-    begin
-        return "";
     end Get_Line;
 
     function Format (E : in out Stateless_Line_Editor; L : Lines.Line) return Lines.Line is
