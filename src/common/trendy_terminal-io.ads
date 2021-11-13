@@ -37,7 +37,7 @@ package Trendy_Terminal.IO is
     procedure New_Line (Num_Lines : Positive := 1);
     procedure Set_Col (Column : Positive);
 
-    type Format_Function is access function (S : String) return String;
+    type Format_Function is access function (L : Lines.Line) return Lines.Line;
 
     package Line_Vectors is new Ada.Containers.Vectors(
             Index_Type   => Positive,
@@ -53,6 +53,25 @@ package Trendy_Terminal.IO is
     type Completion_Function is access function (L : Lines.Line)
         return Line_Vectors.Vector;
 
+    -- Line editing
+    type Line_Editor is interface;
+    function Get_Line (E: in out Line_Editor'Class) return String;
+
+    function Format   (E : in out Line_Editor; L : Lines.Line) return Lines.Line is abstract;
+    function Complete (E : in out Line_Editor; L : Lines.Line) return Line_Vectors.Vector is abstract;
+
+    type Stateless_Line_Editor is new Line_Editor with record
+        Format_Fn     : Format_Function;
+        Completion_Fn : Completion_Function;
+    end record;
+
+    overriding
+    function Format (E : in out Stateless_Line_Editor; L : Lines.Line) return Lines.Line;
+
+    overriding
+    function Complete (E : in out Stateless_Line_Editor; L : Lines.Line) return Line_Vectors.Vector;
+
+    -- Helper to implicitly use a Stateless_Line_Editor
     function Get_Line (Format_Fn     : Format_Function := null;
                        Completion_Fn : Completion_Function := null) return String;
 

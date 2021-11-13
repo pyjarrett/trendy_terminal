@@ -65,6 +65,8 @@ package body Trendy_Terminal.IO is
     -- and hinting callbacks.
     --
     -- TODO: Support full utf-8.  Only ASCII is supported for now.
+    --
+    -- Helper to implicitly use a Stateless_Line_Editor
     function Get_Line(Format_Fn     : Format_Function := null;
                       Completion_Fn : Completion_Function := null) return String
     is
@@ -78,6 +80,9 @@ package body Trendy_Terminal.IO is
         Edit_Pos    : VT100.Cursor_Position := Line_Pos;
         Tab_Pos     : Integer := 1;
         Completions : Line_Vectors.Vector;
+
+        Editor      : Stateless_Line_Editor := (Format_Fn => Format_Fn,
+                                                Completion_Fn => Completion_Fn);
 
         -- Prints an updated input line at the given starting position.
         procedure Print_Line (Pos : VT100.Cursor_Position; S : String) is
@@ -110,7 +115,7 @@ package body Trendy_Terminal.IO is
 
         loop
             if Format_Fn /= null then
-                Print_Line (Line_Pos, Format_Fn (Lines.Current (L)));
+                Print_Line (Line_Pos, Lines.Current (Format_Fn (L)));
             else
                 Print_Line (Line_Pos, Lines.Current (L));
             end if;
@@ -173,5 +178,16 @@ package body Trendy_Terminal.IO is
             end if;
         end loop;
     end Get_Line;
+
+    function Get_Line (E : in out Line_Editor'Class) return String is
+    begin
+        return "";
+    end Get_Line;
+
+    function Format (E : in out Stateless_Line_Editor; L : Lines.Line) return Lines.Line is
+        (if E.Format_Fn /= null then E.Format_Fn (L) else L);
+
+    function Complete (E : in out Stateless_Line_Editor; L : Lines.Line) return Line_Vectors.Vector is
+        (if E.Completion_Fn /= null then E.Completion_Fn (L) else Line_Vectors.Empty);
 
 end Trendy_Terminal.IO;
