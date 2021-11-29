@@ -53,6 +53,8 @@ package body Trendy_Terminal.IO is
         VT100.Set_Cursor_Position (Cursor_Pos);
     end Set_Col;
 
+    ---------------------------------------------------------------------------
+
     function Should_Terminate_Input (Input_Line : ASU.Unbounded_String) return Boolean is
         Key_CR : constant := 10;
         Key_FF : constant := 13;
@@ -86,7 +88,7 @@ package body Trendy_Terminal.IO is
         Line_Pos    : constant VT100.Cursor_Position := VT100.Get_Cursor_Position;
         Edit_Pos    : VT100.Cursor_Position := Line_Pos;
         Tab_Pos     : Integer := 1;
-        Completions : Line_Vectors.Vector;
+        Completions : Lines.Line_Vectors.Vector;
 
         -- Prints an updated input line at the given starting position.
         procedure Print_Line (Pos : VT100.Cursor_Position; S : String) is
@@ -178,7 +180,7 @@ package body Trendy_Terminal.IO is
     function Format (E : in out Stateless_Line_Editor; L : Lines.Line) return Lines.Line is
         (if E.Format_Fn /= null then E.Format_Fn (L) else L);
 
-    function Complete (E : in out Stateless_Line_Editor; L : Lines.Line) return Line_Vectors.Vector is
-        (if E.Completion_Fn /= null then E.Completion_Fn (L) else Line_Vectors.Empty);
+    function Complete (E : in out Stateless_Line_Editor; L : Lines.Line) return Lines.Line_Vectors.Vector is
+        (if E.Completion_Fn /= null then E.Completion_Fn (L) else Lines.Line_Vectors.Empty);
 
 end Trendy_Terminal.IO;
