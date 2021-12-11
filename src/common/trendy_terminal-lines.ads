@@ -46,6 +46,7 @@ package Trendy_Terminal.Lines is
     function Length(Self : in Line) return Natural;
     procedure Move_Cursor (Self : in out Line; Direction : Cursor_Direction);
 
+    function Make (Contents : ASU.Unbounded_String; Index : Positive) return Line;
     function Make (S : String; Index : Positive) return Line;
     procedure Set (Self : in out Line; S : String; Index : Positive);
 

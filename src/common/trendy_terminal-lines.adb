@@ -36,6 +36,11 @@ package body Trendy_Terminal.Lines is
         end case;
     end Move_Cursor;
 
+    function Make (Contents : ASU.Unbounded_String; Index : Positive) return Line is
+    begin
+        return Line'(Contents => Contents, Cursor => Index);
+    end Make;
+
     function Make (S : String; Index : Positive) return Line is
     begin
         return Result : Line do

@@ -30,19 +30,29 @@ package Trendy_Terminal.Histories is
 
     package ASU renames Ada.Strings.Unbounded;
 
+    -- Vectors of strings for storing command lines of various lengths.
+    package String_Vectors is new Ada.Containers.Vectors(Index_Type => Positive,
+                                                         Element_Type => ASU.Unbounded_String,
+                                                         "="          => ASU."=");
+
     -- A record of the history of user inputs.
     type History is private;
 
-    procedure Add (H : in out History; L : Lines.Line);
+    type History_Access is access all History;
 
-    -- Some histories only store a limited number of entries.
+    -- Adds a line to the history.  This makes it the most recent line in the
+    -- history.
+    procedure Add (H : in out History; Input : String);
+
+    -- Some histories only store a limited number of entries.  There isn't
+    -- necessarily a super practical reason for this.
     procedure Set_Max_Entries(H : in out History; Count : Positive);
 
     function Num_Entries (H : History) return Natural;
 
-    -- History starting with 1 being the least recent, with thloe most recent
+    -- History starting with 1 being the least recent, with the most recent
     -- command having a higher index.
-    function Get_Entry (H : History; Index : Positive) return Lines.Line
+    function Get_Entry (H : History; Index : Positive) return String
         with Pre => Index < Positive (Num_Entries (H));
 
     -- Returns a list of completions which could match the given line.
@@ -50,13 +60,8 @@ package Trendy_Terminal.Histories is
 
 private
 
-    -- Vectors of strings for storing command lines of various lengths.
-    package String_Vectors is new Ada.Containers.Vectors(Index_Type => Positive,
-                                                         Element_Type => ASU.Unbounded_String,
-                                                         "="          => ASU."=");
-
     type History is record
-        Entries     : Lines.Line_Vectors.Vector;
+        Entries     : String_Vectors.Vector;
         Max_Entries : Positive := 1;
     end record;
 
