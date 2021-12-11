@@ -38,6 +38,13 @@ package body Trendy_Terminal.IO is
         Put_Line (ASU.To_String(S));
     end Put_Line;
 
+    procedure Rewrite_Line (Pos : VT100.Cursor_Position; S : String) is
+    begin
+        VT100.Set_Cursor_Position (Pos);
+        VT100.Clear_Line;
+        Put (S);
+    end Rewrite_Line;
+
     procedure New_Line (Num_Lines : Positive := 1) is
     begin
         -- TODO: very inefficient

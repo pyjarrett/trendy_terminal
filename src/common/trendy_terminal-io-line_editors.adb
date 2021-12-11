@@ -42,14 +42,6 @@ package body Trendy_Terminal.IO.Line_Editors is
         Tab_Pos     : Integer := 1;
         Completions : Lines.Line_Vectors.Vector;
 
-        -- Prints an updated input line at the given starting position.
-        procedure Print_Line (Pos : VT100.Cursor_Position; S : String) is
-        begin
-            VT100.Set_Cursor_Position (Pos);
-            VT100.Clear_Line;
-            Put (S);
-        end Print_Line;
-
         procedure Reset_Completions is
         begin
             Tab_Pos := 1;
@@ -72,7 +64,7 @@ package body Trendy_Terminal.IO.Line_Editors is
         Edit_Pos.Row := Line_Pos.Row;
 
         loop
-            Print_Line (Line_Pos, Lines.Current (Editor.Format (L)));
+            Rewrite_Line (Line_Pos, Lines.Current (Editor.Format (L)));
 
             Edit_Pos.Col := Lines.Get_Cursor_Index(L) + Line_Pos.Col - 1;
             VT100.Set_Cursor_Position (Edit_Pos);

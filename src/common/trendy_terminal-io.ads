@@ -34,6 +34,8 @@ package Trendy_Terminal.IO is
     procedure Put_Line (S : String);
     procedure Put_Line (S : ASU.Unbounded_String);
 
+    procedure Rewrite_Line (Pos : VT100.Cursor_Position; S : String);
+
     procedure New_Line (Num_Lines : Positive := 1);
     procedure Set_Col (Column : Positive);
 
