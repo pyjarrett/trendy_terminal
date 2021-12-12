@@ -34,6 +34,7 @@ package body Trendy_Terminal.IO.Line_Editors is
         use Trendy_Terminal.Maps;
         use all type ASU.Unbounded_String;
         use all type Ada.Containers.Count_Type;
+        use Trendy_Terminal.Histories;
 
         Input_Line  : ASU.Unbounded_String;
         L           : Lines.Line;
@@ -41,11 +42,13 @@ package body Trendy_Terminal.IO.Line_Editors is
         Edit_Pos    : VT100.Cursor_Position := Line_Pos;
         Tab_Pos     : Integer := 1;
 
-        Tab_Completions : Trendy_Terminal.Completions.Completion_Set;
+        Tab_Completions     : Trendy_Terminal.Completions.Completion_Set;
+        History_Completions : Trendy_Terminal.Completions.Completion_Set;
 
         procedure Reset_Completions is
         begin
             Trendy_Terminal.Completions.Reset (Tab_Completions);
+            Trendy_Terminal.Completions.Reset (History_Completions);
         end Reset_Completions;
     begin
         Edit_Pos.Row := Line_Pos.Row;
@@ -78,9 +81,33 @@ package body Trendy_Terminal.IO.Line_Editors is
                 Lines.Set_Cursor_Index (L, Lines.Length (L) + 1);
                 Reset_Completions;
             elsif Maps.Sequence_For (Key_Up) = Input_Line then
-                Put_Line ("Up");
+                if Trendy_Terminal.Completions.Is_Valid (History_Completions) then
+                    Trendy_Terminal.Completions.Move_Forward (History_Completions);
+                else
+                    if Editor.Line_History /= null then
+                        Trendy_Terminal.Completions.Fill (
+                            History_Completions, Trendy_Terminal.Histories.Completions_Matching (
+                                Editor.Line_History.all, Lines.Current (L)));
+                    end if;
+                end if;
+
+                if Trendy_Terminal.Completions.Is_Valid (History_Completions) then
+                    L := Lines.Make (Trendy_Terminal.Completions.Get_Current (History_Completions));
+                end if;
             elsif Maps.Sequence_For (Key_Down) = Input_Line then
-                Put_Line ("Down");
+                if Trendy_Terminal.Completions.Is_Valid (History_Completions) then
+                    Trendy_Terminal.Completions.Move_Backward (History_Completions);
+                else
+                    if Editor.Line_History /= null then
+                        Trendy_Terminal.Completions.Fill (
+                            History_Completions, Trendy_Terminal.Histories.Completions_Matching (
+                                Editor.Line_History.all, Lines.Current (L)));
+                    end if;
+                end if;
+
+                if Trendy_Terminal.Completions.Is_Valid (History_Completions) then
+                    L := Lines.Make (Trendy_Terminal.Completions.Get_Current (History_Completions));
+                end if;
             elsif Maps.Sequence_For (Key_Shift_Tab) = Input_Line then
                 if Trendy_Terminal.Completions.Is_Valid (Tab_Completions) then
                     Trendy_Terminal.Completions.Move_Backward (Tab_Completions);

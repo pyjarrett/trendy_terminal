@@ -28,6 +28,7 @@ package Trendy_Terminal.IO.Line_Editors is
     function Format   (E : in out Line_Editor; L : Lines.Line) return Lines.Line is abstract;
     function Complete (E : in out Line_Editor; L : Lines.Line) return Lines.Line_Vectors.Vector is abstract;
     procedure Submit  (E : in out Line_Editor; L : Lines.Line) is abstract;
+    function Line_History (E : in out Line_Editor) return Trendy_Terminal.Histories.History_Access is abstract;
 
     type Stateless_Line_Editor is new Line_Editor with record
         Format_Fn     : Format_Function;
@@ -43,6 +44,10 @@ package Trendy_Terminal.IO.Line_Editors is
 
     overriding
     procedure Submit (E: in out Stateless_Line_Editor; L : Lines.Line);
+
+    overriding
+    function Line_History (E : in out Stateless_Line_Editor) return Trendy_Terminal.Histories.History_Access is
+        (E.Line_History);
 
     -- Helper to implicitly use a Stateless_Line_Editor
     function Get_Line (Format_Fn     : Format_Function := null;
