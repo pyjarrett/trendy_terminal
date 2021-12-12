@@ -50,6 +50,15 @@ package body Trendy_Terminal.IO.Line_Editors is
             Trendy_Terminal.Completions.Reset (Tab_Completions);
             Trendy_Terminal.Completions.Reset (History_Completions);
         end Reset_Completions;
+
+        Reset_Keys : constant array(Positive range <>) of Key :=
+            (Key_Left,
+             Key_Right,
+             Key_Backspace,
+             Key_Delete,
+             Key_Home,
+             Key_End
+            );
     begin
         Edit_Pos.Row := Line_Pos.Row;
 
@@ -64,31 +73,24 @@ package body Trendy_Terminal.IO.Line_Editors is
 
             if Maps.Sequence_For(Key_Left) = Input_Line then
                 Lines.Move_Cursor(L, Lines.Left);
-                Reset_Completions;
             elsif Maps.Sequence_For (Key_Right) = Input_Line then
                 Lines.Move_Cursor(L, Lines.Right);
-                Reset_Completions;
             elsif Maps.Sequence_For (Key_Backspace) = Input_Line then
                 Lines.Backspace (L);
-                Reset_Completions;
             elsif Maps.Sequence_For (Key_Delete) = Input_Line then
                 Lines.Delete (L);
-                Reset_Completions;
             elsif Maps.Sequence_For (Key_Home) = Input_Line then
                 Lines.Set_Cursor_Index (L, 1);
-                Reset_Completions;
             elsif Maps.Sequence_For (Key_End) = Input_Line then
                 Lines.Set_Cursor_Index (L, Lines.Length (L) + 1);
-                Reset_Completions;
             elsif Maps.Sequence_For (Key_Up) = Input_Line then
+                -- Roll to the previous element in history
                 if Trendy_Terminal.Completions.Is_Valid (History_Completions) then
                     Trendy_Terminal.Completions.Move_Forward (History_Completions);
-                else
-                    if Editor.Line_History /= null then
-                        Trendy_Terminal.Completions.Fill (
-                            History_Completions, Trendy_Terminal.Histories.Completions_Matching (
-                                Editor.Line_History.all, Lines.Current (L)));
-                    end if;
+                elsif Editor.Line_History /= null then
+                    Trendy_Terminal.Completions.Fill (
+                        History_Completions, Trendy_Terminal.Histories.Completions_Matching (
+                            Editor.Line_History.all, Lines.Current (L)));
                 end if;
 
                 if Trendy_Terminal.Completions.Is_Valid (History_Completions) then
@@ -119,6 +121,7 @@ package body Trendy_Terminal.IO.Line_Editors is
                     L := Lines.Make (Trendy_Terminal.Completions.Get_Current (Tab_Completions));
                 end if;
             elsif Maps.Sequence_For (Key_Tab) = Input_Line then
+                Trendy_Terminal.Completions.Reset (Tab_Completions);
                 if Trendy_Terminal.Completions.Is_Valid (Tab_Completions) then
                     Trendy_Terminal.Completions.Move_Forward (Tab_Completions);
                 else
@@ -138,6 +141,11 @@ package body Trendy_Terminal.IO.Line_Editors is
                 Reset_Completions;
                 Lines.Insert (L, ASU.To_String (Input_Line));
             end if;
+
+            if Maps.Is_Key (ASU.To_String (Input_Line)) and then
+                    (for some Key of Reset_Keys => Maps.Key_For (ASU.To_String (Input_Line)) = Key) then
+                Reset_Completions;
+            end if;
         end loop;
     end Get_Line;
 
@@ -152,7 +160,7 @@ package body Trendy_Terminal.IO.Line_Editors is
     overriding
     procedure Submit (E: in out Stateless_Line_Editor; L : Lines.Line) is
     begin
-        Histories.Add (E.Line_History.all, Lines.Current (L));
+        null;
     end Submit;
 
 end Trendy_Terminal.IO.Line_Editors;

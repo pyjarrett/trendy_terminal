@@ -37,6 +37,9 @@ package Trendy_Terminal.Completions is
     function Get_Current (Self : in out Completion_Set) return String
         with Pre => Self.Index > 0 and then Is_Valid (Self);
 
+    function Get_Index (Self : in out Completion_Set) return Integer
+        with Pre => Is_Valid (Self);
+
     function Is_Valid (Self : Completion_Set) return Boolean;
 
     function Length (Self : Completion_Set) return Integer

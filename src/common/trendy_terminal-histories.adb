@@ -20,7 +20,7 @@ package body Trendy_Terminal.Histories is
 
     procedure Add (H : in out History; Input : String) is
     begin
-        H.Entries.Append (ASU.To_Unbounded_String (Input));
+        H.Entries.Prepend (ASU.To_Unbounded_String (Input));
     end Add;
 
     procedure Set_Max_Entries (H : in out History; Count : Positive) is
