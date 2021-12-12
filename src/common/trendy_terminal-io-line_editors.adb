@@ -40,30 +40,13 @@ package body Trendy_Terminal.IO.Line_Editors is
         Line_Pos    : constant VT100.Cursor_Position := VT100.Get_Cursor_Position;
         Edit_Pos    : VT100.Cursor_Position := Line_Pos;
         Tab_Pos     : Integer := 1;
-        Completions : Lines.Line_Vectors.Vector;
 
         Tab_Completions : Trendy_Terminal.Completions.Completion_Set;
 
         procedure Reset_Completions is
         begin
-            Tab_Pos := 1;
-            Completions.Clear;
-
             Trendy_Terminal.Completions.Reset (Tab_Completions);
         end Reset_Completions;
-
-        procedure Set_Tab_Pos (N : Integer) is
-        begin
-            Tab_Pos := N;
-            if Tab_Pos <= 0 then
-                Tab_Pos := Integer (Completions.Length);
-            else
-                Tab_Pos := Tab_Pos mod Integer (Completions.Length);
-                if Tab_Pos = 0 then
-                    Tab_Pos := Integer (Completions.Length);
-                end if;
-            end if;
-        end Set_Tab_Pos;
     begin
         Edit_Pos.Row := Line_Pos.Row;
 
@@ -99,28 +82,24 @@ package body Trendy_Terminal.IO.Line_Editors is
             elsif Maps.Sequence_For (Key_Down) = Input_Line then
                 Put_Line ("Down");
             elsif Maps.Sequence_For (Key_Shift_Tab) = Input_Line then
-                if not Trendy_Terminal.Completions.Is_Valid (Tab_Completions) then
-                    Trendy_Terminal.Completions.Fill (Tab_Completions, Editor.Complete (L));
-                else
+                if Trendy_Terminal.Completions.Is_Valid (Tab_Completions) then
                     Trendy_Terminal.Completions.Move_Backward (Tab_Completions);
+                else
+                    Trendy_Terminal.Completions.Fill (Tab_Completions, Editor.Complete (L));
                 end if;
 
                 if Trendy_Terminal.Completions.Is_Valid (Tab_Completions) then
                     L := Lines.Make (Trendy_Terminal.Completions.Get_Current (Tab_Completions));
                 end if;
             elsif Maps.Sequence_For (Key_Tab) = Input_Line then
-                if not Trendy_Terminal.Completions.Is_Valid (Tab_Completions) then
-                    Trendy_Terminal.Completions.Fill (Tab_Completions, Editor.Complete (L));
-                else
+                if Trendy_Terminal.Completions.Is_Valid (Tab_Completions) then
                     Trendy_Terminal.Completions.Move_Forward (Tab_Completions);
+                else
+                    Trendy_Terminal.Completions.Fill (Tab_Completions, Editor.Complete (L));
                 end if;
 
                 if Trendy_Terminal.Completions.Is_Valid (Tab_Completions) then
-                    declare
-                        C : constant String := Trendy_Terminal.Completions.Get_Current (Tab_Completions);
-                    begin
-                        L := Trendy_Terminal.Lines.Make (C);
-                    end;
+                    L := Lines.Make (Trendy_Terminal.Completions.Get_Current (Tab_Completions));
                 end if;
             elsif ASU.Length (Input_Line) = 1 and then Should_Terminate_Input (Input_Line) then
                 -- TODO: this should only add the commadn if it was successful.
@@ -141,7 +120,7 @@ package body Trendy_Terminal.IO.Line_Editors is
 
     overriding
     function Complete (E : in out Stateless_Line_Editor; L : Lines.Line) return Lines.Line_Vectors.Vector is
-        (if E.Completion_Fn /= null then E.Completion_Fn (L) else Lines.Line_Vectors.Empty);
+        (if E.Completion_Fn /= null then E.Completion_Fn (L) else Lines.Line_Vectors.Empty_Vector);
 
     overriding
     procedure Submit (E: in out Stateless_Line_Editor; L : Lines.Line) is

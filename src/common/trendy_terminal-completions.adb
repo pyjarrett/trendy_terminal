@@ -21,7 +21,7 @@ package body Trendy_Terminal.Completions is
     procedure Reset (Self : in out Completion_Set) is
     begin
         Self.Lines.Clear;
-        Self.Index := 0;
+        Self.Index := 1;
     end Reset;
 
     procedure Fill
@@ -31,15 +31,16 @@ package body Trendy_Terminal.Completions is
         use type Ada.Containers.Count_Type;
     begin
         Self.Lines := Lines;
-        Self.Index := (if Lines.Length > 0 then 1 else 0);
+        Self.Index := 1;
     end Fill;
 
     procedure Set_Index (Self : in out Completion_Set; Index : Integer) is
     begin
-        if Index <= 0 then
+        Self.Index := Index;
+        if Self.Index <= 0 then
             Self.Index := Length (Self);
         else
-            Self.Index := Index mod Length (Self);
+            Self.Index := Self.Index mod Length (Self);
             if Self.Index = 0 then
                 Self.Index := Length (Self);
             end if;
@@ -63,12 +64,13 @@ package body Trendy_Terminal.Completions is
 
     function Length (Self : Completion_Set) return Integer is
     begin
-        return 0;
+        return Integer (Self.Lines.Length);
     end Length;
 
     function Is_Valid (Self : Completion_Set) return Boolean is
+        use type Ada.Containers.Count_Type;
     begin
-        return Self.Index /= 0;
+        return Self.Lines.Length /= 0;
     end Is_Valid;
 
 end Trendy_Terminal.Completions;
