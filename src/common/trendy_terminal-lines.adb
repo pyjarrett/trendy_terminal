@@ -49,6 +49,11 @@ package body Trendy_Terminal.Lines is
         end return;
     end Make;
 
+    function Make (S : String) return Line is
+    begin
+        return Make (S, S'Length + 1);
+    end Make;
+
     procedure Set (Self : in out Line; S : String; Index : Positive) is
     begin
         Self.Contents := ASU.To_Unbounded_String (S);

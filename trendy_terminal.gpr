@@ -24,13 +24,15 @@ project Trendy_Terminal is
    for Library_Kind use Library_Type;
 
    type Enabled_Kind is ("enabled", "disabled");
-   Compile_Checks : Enabled_Kind := External ("TRENDY_TERMINAL_COMPILE_CHECKS", "disabled");
-   Runtime_Checks : Enabled_Kind := External ("TRENDY_TERMINAL_RUNTIME_CHECKS", "disabled");
-   Style_Checks : Enabled_Kind := External ("TRENDY_TERMINAL_STYLE_CHECKS", "disabled");
-   Contracts_Checks : Enabled_Kind := External ("TRENDY_TERMINAL_CONTRACTS", "disabled");
+   Checks_Enabled : Enabled_Kind := "enabled";
+
+   Compile_Checks : Enabled_Kind := External ("TRENDY_TERMINAL_COMPILE_CHECKS", Checks_Enabled);
+   Runtime_Checks : Enabled_Kind := External ("TRENDY_TERMINAL_RUNTIME_CHECKS", Checks_Enabled);
+   Style_Checks : Enabled_Kind := External ("TRENDY_TERMINAL_STYLE_CHECKS", Checks_Enabled);
+   Contracts_Checks : Enabled_Kind := External ("TRENDY_TERMINAL_CONTRACTS", Checks_Enabled);
 
    type Build_Kind is ("debug", "optimize");
-   Build_Mode : Build_Kind := External ("TRENDY_TERMINAL_BUILD_MODE", "optimize");
+   Build_Mode : Build_Kind := External ("TRENDY_TERMINAL_BUILD_MODE", "debug");
 
    Compile_Checks_Switches := ();
    case Compile_Checks is

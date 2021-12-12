@@ -19,6 +19,7 @@ with Ada.Strings.Unbounded;
 
 with Trendy_Terminal.IO;
 with Trendy_Terminal.Lines.Line_Vectors;
+with Trendy_Terminal.String_Vectors;
 
 -- Stores user line history.
 --
@@ -29,11 +30,6 @@ with Trendy_Terminal.Lines.Line_Vectors;
 package Trendy_Terminal.Histories is
 
     package ASU renames Ada.Strings.Unbounded;
-
-    -- Vectors of strings for storing command lines of various lengths.
-    package String_Vectors is new Ada.Containers.Vectors(Index_Type => Positive,
-                                                         Element_Type => ASU.Unbounded_String,
-                                                         "="          => ASU."=");
 
     -- A record of the history of user inputs.
     type History is private;

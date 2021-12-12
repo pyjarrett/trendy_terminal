@@ -48,6 +48,7 @@ package Trendy_Terminal.Lines is
 
     function Make (Contents : ASU.Unbounded_String; Index : Positive) return Line;
     function Make (S : String; Index : Positive) return Line;
+    function Make (S : String) return Line;
     procedure Set (Self : in out Line; S : String; Index : Positive);
 
     function Get_Cursor_Index (Self : in Line) return Positive;

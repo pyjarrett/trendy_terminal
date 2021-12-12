@@ -1,3 +1,4 @@
+with Trendy_Terminal.Completions;
 with Trendy_Terminal.Maps;
 with Trendy_Terminal.Lines; use Trendy_Terminal.Lines;
 with Trendy_Terminal.Lines.Line_Vectors;
@@ -30,7 +31,6 @@ package body Trendy_Terminal.IO.Line_Editors is
     end Get_Line;
 
     function Get_Line (Editor : in out Line_Editor'Class) return String is
-        use Trendy_Terminal.Lines;
         use Trendy_Terminal.Maps;
         use all type ASU.Unbounded_String;
         use all type Ada.Containers.Count_Type;
@@ -42,10 +42,14 @@ package body Trendy_Terminal.IO.Line_Editors is
         Tab_Pos     : Integer := 1;
         Completions : Lines.Line_Vectors.Vector;
 
+        Tab_Completions : Trendy_Terminal.Completions.Completion_Set;
+
         procedure Reset_Completions is
         begin
             Tab_Pos := 1;
             Completions.Clear;
+
+            Trendy_Terminal.Completions.Reset (Tab_Completions);
         end Reset_Completions;
 
         procedure Set_Tab_Pos (N : Integer) is
@@ -95,24 +99,28 @@ package body Trendy_Terminal.IO.Line_Editors is
             elsif Maps.Sequence_For (Key_Down) = Input_Line then
                 Put_Line ("Down");
             elsif Maps.Sequence_For (Key_Shift_Tab) = Input_Line then
-                if Completions.Is_Empty then
-                    Completions := Editor.Complete (L);
+                if not Trendy_Terminal.Completions.Is_Valid (Tab_Completions) then
+                    Trendy_Terminal.Completions.Fill (Tab_Completions, Editor.Complete (L));
                 else
-                    Set_Tab_Pos (Tab_Pos - 1);
+                    Trendy_Terminal.Completions.Move_Backward (Tab_Completions);
                 end if;
 
-                if not Completions.Is_Empty then
-                    L := Completions (Tab_Pos);
+                if Trendy_Terminal.Completions.Is_Valid (Tab_Completions) then
+                    L := Lines.Make (Trendy_Terminal.Completions.Get_Current (Tab_Completions));
                 end if;
             elsif Maps.Sequence_For (Key_Tab) = Input_Line then
-                    if Completions.Is_Empty then
-                    Completions := Editor.Complete (L);
+                if not Trendy_Terminal.Completions.Is_Valid (Tab_Completions) then
+                    Trendy_Terminal.Completions.Fill (Tab_Completions, Editor.Complete (L));
                 else
-                    Set_Tab_Pos (Tab_Pos + 1);
+                    Trendy_Terminal.Completions.Move_Forward (Tab_Completions);
                 end if;
 
-                if not Completions.Is_Empty then
-                    L := Completions (Tab_Pos);
+                if Trendy_Terminal.Completions.Is_Valid (Tab_Completions) then
+                    declare
+                        C : constant String := Trendy_Terminal.Completions.Get_Current (Tab_Completions);
+                    begin
+                        L := Trendy_Terminal.Lines.Make (C);
+                    end;
                 end if;
             elsif ASU.Length (Input_Line) = 1 and then Should_Terminate_Input (Input_Line) then
                 -- TODO: this should only add the commadn if it was successful.
@@ -127,12 +135,15 @@ package body Trendy_Terminal.IO.Line_Editors is
         end loop;
     end Get_Line;
 
+    overriding
     function Format (E : in out Stateless_Line_Editor; L : Lines.Line) return Lines.Line is
         (if E.Format_Fn /= null then E.Format_Fn (L) else L);
 
+    overriding
     function Complete (E : in out Stateless_Line_Editor; L : Lines.Line) return Lines.Line_Vectors.Vector is
         (if E.Completion_Fn /= null then E.Completion_Fn (L) else Lines.Line_Vectors.Empty);
 
+    overriding
     procedure Submit (E: in out Stateless_Line_Editor; L : Lines.Line) is
     begin
         Histories.Add (E.Line_History.all, Lines.Current (L));
