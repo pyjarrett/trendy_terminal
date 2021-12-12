@@ -85,6 +85,7 @@ package body Trendy_Terminal.IO.Line_Editors is
                 Lines.Set_Cursor_Index (L, Lines.Length (L) + 1);
             elsif Maps.Sequence_For (Key_Up) = Input_Line then
                 -- Roll to the previous element in history
+                Trendy_Terminal.Completions.Reset (Tab_Completions);
                 if Trendy_Terminal.Completions.Is_Valid (History_Completions) then
                     Trendy_Terminal.Completions.Move_Forward (History_Completions);
                 elsif Editor.Line_History /= null then
@@ -97,6 +98,7 @@ package body Trendy_Terminal.IO.Line_Editors is
                     L := Lines.Make (Trendy_Terminal.Completions.Get_Current (History_Completions));
                 end if;
             elsif Maps.Sequence_For (Key_Down) = Input_Line then
+                Trendy_Terminal.Completions.Reset (Tab_Completions);
                 if Trendy_Terminal.Completions.Is_Valid (History_Completions) then
                     Trendy_Terminal.Completions.Move_Backward (History_Completions);
                 else
@@ -111,6 +113,7 @@ package body Trendy_Terminal.IO.Line_Editors is
                     L := Lines.Make (Trendy_Terminal.Completions.Get_Current (History_Completions));
                 end if;
             elsif Maps.Sequence_For (Key_Shift_Tab) = Input_Line then
+                Trendy_Terminal.Completions.Reset (History_Completions);
                 if Trendy_Terminal.Completions.Is_Valid (Tab_Completions) then
                     Trendy_Terminal.Completions.Move_Backward (Tab_Completions);
                 else
@@ -121,7 +124,7 @@ package body Trendy_Terminal.IO.Line_Editors is
                     L := Lines.Make (Trendy_Terminal.Completions.Get_Current (Tab_Completions));
                 end if;
             elsif Maps.Sequence_For (Key_Tab) = Input_Line then
-                Trendy_Terminal.Completions.Reset (Tab_Completions);
+                Trendy_Terminal.Completions.Reset (History_Completions);
                 if Trendy_Terminal.Completions.Is_Valid (Tab_Completions) then
                     Trendy_Terminal.Completions.Move_Forward (Tab_Completions);
                 else
