@@ -45,12 +45,6 @@ package body Trendy_Terminal.IO.Line_Editors is
         Tab_Completions     : Trendy_Terminal.Completions.Completion_Set;
         History_Completions : Trendy_Terminal.Completions.Completion_Set;
 
-        procedure Reset_Completions is
-        begin
-            Trendy_Terminal.Completions.Reset (Tab_Completions);
-            Trendy_Terminal.Completions.Reset (History_Completions);
-        end Reset_Completions;
-
         Reset_Keys : constant array(Positive range <>) of Key :=
             (Key_Left,
              Key_Right,
@@ -61,6 +55,8 @@ package body Trendy_Terminal.IO.Line_Editors is
             );
     begin
         Edit_Pos.Row := Line_Pos.Row;
+        Trendy_Terminal.Completions.Reset (Tab_Completions);
+        Trendy_Terminal.Completions.Reset (History_Completions);
 
         loop
             Rewrite_Line (Line_Pos, Lines.Current (Editor.Format (L)));
@@ -139,15 +135,17 @@ package body Trendy_Terminal.IO.Line_Editors is
                 Submit (Editor, L);
                 return Lines.Current (L);
             elsif not Maps.Is_Key (ASU.To_String (Input_Line)) then
-                -- Actual text was inserted.
+                -- Actual text was inserted, so restart completions.
                 -- TODO: Maybe add a "replace" mode?
-                Reset_Completions;
+                Trendy_Terminal.Completions.Reset (Tab_Completions);
+                Trendy_Terminal.Completions.Reset (History_Completions);
                 Lines.Insert (L, ASU.To_String (Input_Line));
             end if;
 
             if Maps.Is_Key (ASU.To_String (Input_Line)) and then
                     (for some Key of Reset_Keys => Maps.Key_For (ASU.To_String (Input_Line)) = Key) then
-                Reset_Completions;
+                Trendy_Terminal.Completions.Reset (Tab_Completions);
+                Trendy_Terminal.Completions.Reset (History_Completions);
             end if;
         end loop;
     end Get_Line;
