@@ -18,31 +18,39 @@ with Trendy_Terminal.Lines.Line_Vectors;
 
 package Trendy_Terminal.Completions is
 
+    -- A group of possible completions that need to be searched.
+    type Completion_Set is private;
+
+    procedure Empty (Self : in out Completion_Set);
+    function Is_Empty (Self : Completion_Set) return Boolean;
+
+    -- Sets the data used by the completion set.
+    procedure Fill
+        (Self  : in out Completion_Set;
+         Lines : Trendy_Terminal.Lines.Line_Vectors.Vector);
+
+    procedure Set_Index (Self : in out Completion_Set; Index : Integer)
+        with Pre => not Is_Empty (Self);
+
+    procedure Move_Forward (Self : in out Completion_Set)
+        with Pre => not Is_Empty (Self);
+
+    procedure Move_Backward (Self : in out Completion_Set)
+        with Pre => not Is_Empty (Self);
+
+    function Get_Current (Self : in out Completion_Set) return String
+        with Pre => Length (Self) > 0 and then not Is_Empty (Self);
+
+    function Get_Index (Self : in out Completion_Set) return Integer
+        with Pre => not Is_Empty (Self);
+
+    function Length (Self : Completion_Set) return Integer;
+
+private
+
     type Completion_Set is record
         Lines : Trendy_Terminal.Lines.Line_Vectors.Vector;
         Index : Integer;
     end record;
-
-    procedure Reset (Self : in out Completion_Set);
-    procedure Fill (Self : in out Completion_Set; Lines : Trendy_Terminal.Lines.Line_Vectors.Vector);
-    procedure Set_Index (Self : in out Completion_Set; Index : Integer)
-        with Pre => Is_Valid (Self);
-
-    procedure Move_Forward (Self : in out Completion_Set)
-        with Pre => Is_Valid (Self);
-
-    procedure Move_Backward (Self : in out Completion_Set)
-        with Pre => Is_Valid (Self);
-
-    function Get_Current (Self : in out Completion_Set) return String
-        with Pre => Self.Index > 0 and then Is_Valid (Self);
-
-    function Get_Index (Self : in out Completion_Set) return Integer
-        with Pre => Is_Valid (Self);
-
-    function Is_Valid (Self : Completion_Set) return Boolean;
-
-    function Length (Self : Completion_Set) return Integer
-        with Pre => Is_Valid (Self);
 
 end Trendy_Terminal.Completions;
