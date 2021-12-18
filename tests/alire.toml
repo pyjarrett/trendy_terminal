@@ -1,0 +1,15 @@
+name = "trendy_terminal_tests"
+description = "Trendy Terminal Testing"
+version = "0.0.1"
+
+authors = ["Paul Jarrett"]
+maintainers = ["Paul Jarrett <jarrett.paul.young@gmail.com>"]
+maintainers-logins = ["pyjarrett"]
+
+executables = ["trendy_terminal_tests"]
+[[depends-on]]  # Added by alr
+trendy_terminal = "~0.0.3"  # Added by alr
+[[pins]]  # Added by alr
+trendy_terminal = { path='../../trendy_terminal' }   # Added by alr
+[[depends-on]]  # Added by alr
+trendy_test = "~0.0.2"  # Added by alr
