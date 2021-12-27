@@ -2,11 +2,12 @@ with Trendy_Terminal.Histories;
 with Trendy_Terminal.Lines.Line_Vectors;
 
 with Trendy_Test.Assertions;
+with Trendy_Test.Assertions.Integer_Assertions;
+
+use Trendy_Test.Assertions;
+use Trendy_Test.Assertions.Integer_Assertions;
 
 package body Trendy_Terminal.Histories.Tests is
-
-    use Trendy_Test;
-    use Trendy_Test.Assertions.Integer_Assertions;
 
     procedure Assert_Contains
         (Op        : in out Trendy_Test.Operation'Class;
