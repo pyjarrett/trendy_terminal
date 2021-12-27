@@ -109,6 +109,8 @@ package body Trendy_Terminal.Platform is
                 Std_Input.Settings.c_lflag (Linux.ECHO) := Enabled;
             when Platform.Line_Input =>
                 Std_Input.Settings.c_lflag (Linux.ICANON) := Enabled;
+            when Platform.Signals_As_Input =>
+                Std_Input.Settings.c_lflag (Linux.ISIG) := not Enabled;
         end case;
         Require_Settings_Change (Std_Input);
     end Set;
