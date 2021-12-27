@@ -21,7 +21,7 @@ package Trendy_Terminal.Completions is
     -- A group of possible completions that need to be searched.
     type Completion_Set is private;
 
-    procedure Empty (Self : in out Completion_Set);
+    procedure Clear (Self : in out Completion_Set);
     function Is_Empty (Self : Completion_Set) return Boolean;
 
     -- Sets the data used by the completion set.
@@ -39,7 +39,7 @@ package Trendy_Terminal.Completions is
         with Pre => not Is_Empty (Self);
 
     function Get_Current (Self : in out Completion_Set) return String
-        with Pre => Length (Self) > 0 and then not Is_Empty (Self);
+        with Pre => not Is_Empty (Self);
 
     function Get_Index (Self : in out Completion_Set) return Integer
         with Pre => not Is_Empty (Self);

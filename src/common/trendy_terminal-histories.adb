@@ -15,8 +15,11 @@
 -------------------------------------------------------------------------------
 
 with Ada.Strings.Fixed;
+with Ada.Strings.Unbounded;
 
 package body Trendy_Terminal.Histories is
+
+    package ASU renames Ada.Strings.Unbounded;
 
     procedure Add (H : in out History; Input : String) is
     begin

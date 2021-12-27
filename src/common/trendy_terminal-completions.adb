@@ -18,16 +18,16 @@ with Ada.Containers;
 
 package body Trendy_Terminal.Completions is
 
-    procedure Empty (Self : in out Completion_Set) is
+    procedure Clear (Self : in out Completion_Set) is
     begin
         Self.Lines.Clear;
         Self.Index := 1;
-    end Empty;
+    end Clear;
 
     function Is_Empty (Self : Completion_Set) return Boolean is
         use type Ada.Containers.Count_Type;
     begin
-        return Self.Lines.Length /= 0;
+        return Self.Lines.Length = 0;
     end Is_Empty;
 
     procedure Fill

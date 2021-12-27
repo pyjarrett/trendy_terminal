@@ -14,10 +14,6 @@
 -- limitations under the License.
 -------------------------------------------------------------------------------
 
-with Ada.Containers.Vectors;
-with Ada.Strings.Unbounded;
-
-with Trendy_Terminal.IO;
 with Trendy_Terminal.Lines.Line_Vectors;
 with Trendy_Terminal.String_Vectors;
 
@@ -29,8 +25,6 @@ with Trendy_Terminal.String_Vectors;
 -- This gets used as a form of completion for line editing.
 package Trendy_Terminal.Histories is
 
-    package ASU renames Ada.Strings.Unbounded;
-
     -- A record of the history of user inputs.
     type History is private;
 
@@ -40,8 +34,7 @@ package Trendy_Terminal.Histories is
     -- history.
     procedure Add (H : in out History; Input : String);
 
-    -- Some histories only store a limited number of entries.  There isn't
-    -- necessarily a super practical reason for this.
+    -- Some histories only store a limited number of entries.
     procedure Set_Max_Entries(H : in out History; Count : Positive);
 
     function Num_Entries (H : History) return Natural;
@@ -58,7 +51,7 @@ private
 
     type History is record
         Entries     : String_Vectors.Vector;
-        Max_Entries : Positive := 1;
+        Max_Entries : Positive := Positive'Last;
     end record;
 
 end Trendy_Terminal.Histories;
