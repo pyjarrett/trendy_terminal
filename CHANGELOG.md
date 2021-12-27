@@ -15,6 +15,7 @@ Types of changes:
 # [[0.0.4 (unreleased)]]
 
 - 🛠️ Fix jumping cursor when line editing.
+- ✅ Adds command history scrollback using arrow keys.
 
 # [[0.0.3]]
 
