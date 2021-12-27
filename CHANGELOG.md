@@ -12,6 +12,10 @@ Types of changes:
 - 🛠️ `Fixed` for any bug fixes.
 - 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
 
+# [[0.0.4 (unreleased)]]
+
+- 🛠️ Fix jumping cursor when line editing.
+
 # [[0.0.3]]
 
 - 🛠️ Fix single character printing on Windows.

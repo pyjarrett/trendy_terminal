@@ -43,6 +43,16 @@ package body Trendy_Terminal.VT100 is
         Platform.Put (CSI & "A");
     end Cursor_Up;
 
+    procedure Hide_Cursor is
+    begin
+        Platform.Put (CSI & "?25l");
+    end Hide_Cursor;
+
+    procedure Show_Cursor is
+    begin
+        Platform.Put (CSI & "?25h");
+    end Show_Cursor;
+
     procedure Scroll_Down is
     begin
         Platform.Put (CSI & "T");

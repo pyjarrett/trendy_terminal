@@ -33,6 +33,9 @@ package Trendy_Terminal.VT100 is
     procedure Cursor_Down;
     procedure Cursor_Up;
 
+    procedure Hide_Cursor;
+    procedure Show_Cursor;
+
     procedure Scroll_Down;
     procedure Scroll_Up;
 

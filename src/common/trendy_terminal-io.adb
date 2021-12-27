@@ -40,8 +40,10 @@ package body Trendy_Terminal.IO is
 
     procedure Rewrite_Line (Pos : VT100.Cursor_Position; S : String) is
     begin
+        VT100.Hide_Cursor;
         VT100.Set_Cursor_Position (Pos);
         VT100.Clear_Line;
+        VT100.Show_Cursor;
         Put (S);
     end Rewrite_Line;
 
