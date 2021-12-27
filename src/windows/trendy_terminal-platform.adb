@@ -181,6 +181,9 @@ package body Trendy_Terminal.Platform is
             when Line_Input =>
                 Std_Input.Settings (Win.ENABLE_LINE_INPUT) := Enabled;
                 Apply(Std_Input);
+            when Signals_As_Input =>
+                Std_Input.Settings (Win.ENABLE_PROCESSED_INPUT) := not Enabled;
+                Apply(Std_Input);
         end case;
     end Set;
 

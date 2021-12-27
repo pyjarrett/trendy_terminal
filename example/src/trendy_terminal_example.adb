@@ -16,6 +16,7 @@ begin
     Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Echo, False);
     Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Line_Input, False);
     Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Escape_Sequences, True);
+    Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Signals_As_Input, True);
 
     Trendy_Terminal.IO.Put_Line ("Hello, world.");
     Trendy_Terminal.IO.Put_Line ("Columns");

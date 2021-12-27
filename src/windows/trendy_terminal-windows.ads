@@ -127,4 +127,5 @@ package Trendy_Terminal.Windows is
                            Characters_Read : LPDWORD;
                            Console_Control : Interfaces.C.ptrdiff_t) return BOOL;
     pragma Import (Stdcall, ReadConsoleA, "ReadConsoleA");
+
 end Trendy_Terminal.Windows;

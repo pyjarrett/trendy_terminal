@@ -71,6 +71,9 @@ package body Trendy_Terminal.Maps is
         KM.Insert(Characters.HT & (+""), Key_Tab);
         KM.Insert(CSI & (+"Z"), Key_Shift_Tab);
 
+        KM.Insert(Characters.ETX & ASU.Null_Unbounded_String, Key_Ctrl_C);
+        KM.Insert(Characters.EOT & ASU.Null_Unbounded_String, Key_Ctrl_D);
+
         return KM;
     end Make_Key_Map;
 
@@ -125,6 +128,9 @@ package body Trendy_Terminal.Maps is
 
         KM.Insert(Key_Tab, Characters.HT & (+""));
         KM.Insert(Key_Shift_Tab, CSI & (+"Z"));
+
+        KM.Insert(Key_Ctrl_C, Characters.ETX & (+""));
+        KM.Insert(Key_Ctrl_D, Characters.EOT & (+""));
 
         return KM;
     end Make_Key_Lookup_Map;

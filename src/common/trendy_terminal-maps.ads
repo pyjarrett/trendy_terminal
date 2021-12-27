@@ -36,7 +36,9 @@ package Trendy_Terminal.Maps is
 
                   -- Keys with modifiers.
                   Key_Shift_Tab,
-                  Key_Ctrl_Up, Key_Ctrl_Left, Key_Ctrl_Right, Key_Ctrl_Down
+                  Key_Ctrl_Up, Key_Ctrl_Left, Key_Ctrl_Right, Key_Ctrl_Down,
+
+                  Key_Ctrl_C, Key_Ctrl_D
                   );
 
     function Sequence_For (K : Key) return String;

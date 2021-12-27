@@ -130,6 +130,8 @@ package body Trendy_Terminal.IO.Line_Editors is
                 if not Trendy_Terminal.Completions.Is_Empty (Tab_Completions) then
                     L := Lines.Make (Trendy_Terminal.Completions.Get_Current (Tab_Completions));
                 end if;
+            elsif Maps.Sequence_For (Key_Ctrl_C) = Input_Line then
+                return "";
             elsif ASU.Length (Input_Line) = 1 and then Should_Terminate_Input (Input_Line) then
                 -- TODO: this should only add the commadn if it was successful.
                 Submit (Editor, L);
