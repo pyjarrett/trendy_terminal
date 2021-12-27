@@ -14,4 +14,4 @@ trendy_terminal = { path='../../trendy_terminal' }   # Added by alr
 [[depends-on]]  # Added by alr
 trendy_test = "~0.0.2"  # Added by alr
 [[pins]]
-trendy_test = { path='../../trendy_test'}
+trendy_terminal = { url = "https://github.com/pyjarrett/trendy_test.git", branch="develop" }
