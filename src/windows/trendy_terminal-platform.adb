@@ -63,7 +63,7 @@ package body Trendy_Terminal.Platform is
         Native  : aliased Interfaces.C.Strings.chars_ptr := Interfaces.C.Strings.New_String(S);
         Written : aliased Win.DWORD;
     begin
-        if Win.WriteFile (H, Win.LPCVOID(Native), S'Length, Written'Unchecked_Access, 0) = 0 then
+        if Win.WriteConsoleA (H, Win.LPCVOID(Native), S'Length, Written'Unchecked_Access, 0) = 0 then
             null;
         end if;
         Interfaces.C.Strings.Free(Native);
@@ -78,7 +78,7 @@ package body Trendy_Terminal.Platform is
         Native : aliased Interfaces.C.Strings.chars_ptr := Interfaces.C.Strings.New_String(S);
         Written : aliased Win.DWORD;
     begin
-        if Win.WriteFile (Std_Output.Handle, Win.LPCVOID(Native), S'Length, Written'Unchecked_Access, 0) = 0 then
+        if Win.WriteConsoleA (Std_Output.Handle, Win.LPCVOID(Native), S'Length, Written'Unchecked_Access, 0) = 0 then
             null;
         end if;
         Interfaces.C.Strings.Free(Native);

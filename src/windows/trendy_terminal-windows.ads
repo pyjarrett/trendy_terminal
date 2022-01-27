@@ -117,9 +117,9 @@ package Trendy_Terminal.Windows is
     type LPCVOID is new Interfaces.C.Strings.chars_ptr;
     type LPOVERLAPPED is new Interfaces.C.ptrdiff_t;
 
-    function WriteFile(hFile : HANDLE; lpBuffer : LPCVOID; BytesToWrite : DWORD;
+    function WriteConsoleA(hFile : HANDLE; lpBuffer : LPCVOID; BytesToWrite : DWORD;
                         NumBytesWritten : LPDWORD; Overlapped : LPOVERLAPPED) return BOOL;
-    pragma Import (Stdcall, WriteFile, "WriteFile");
+    pragma Import (Stdcall, WriteConsoleA, "WriteConsoleA");
 
     function ReadConsoleA (I               : HANDLE;
                            Buffer          : LPVOID;
