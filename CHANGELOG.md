@@ -12,7 +12,12 @@ Types of changes:
 - 🛠️ `Fixed` for any bug fixes.
 - 💥💥💥 `Security` in case of vulnerabilities. Triple 💥 for emphasis.
 
-# [[0.0.4 (unreleased)]]
+# [[0.0.5]]
+
+- ✅ `Added` experimental support for Mac.
+- 🛠️ `Fixed` some problems with Linux support.
+
+# [[0.0.4]]
 
 - 🛠️ Fix jumping cursor when line editing.
 - ✅ Adds command history scrollback using arrow keys.
