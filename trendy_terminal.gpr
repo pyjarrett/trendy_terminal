@@ -10,7 +10,7 @@ project Trendy_Terminal is
    case Platform is
       when "windows" => Trendy_Terminal_Sources := Trendy_Terminal_Sources & "src/windows";
       when "linux"   => Trendy_Terminal_Sources := Trendy_Terminal_Sources & "src/linux";
-      when "macos"   => Trendy_Terminal_Sources := Trendy_Terminal_Sources & "src/mac";
+      when "macos"   => Trendy_Terminal_Sources := Trendy_Terminal_Sources & "src/macos";
    end case;
 
    for Source_Dirs use Trendy_Terminal_Sources;
