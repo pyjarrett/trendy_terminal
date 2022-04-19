@@ -18,6 +18,8 @@ begin
     Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Escape_Sequences, True);
     Trendy_Terminal.Platform.Set (Trendy_Terminal.Platform.Signals_As_Input, True);
 
+    Trendy_Terminal.Platform.Print_Configuration;
+
     Trendy_Terminal.IO.Put_Line ("Hello, world.");
     Trendy_Terminal.IO.Put_Line ("Columns");
     Trendy_Terminal.IO.Put_Line ("12345678901234567890123456789012345678901234567890");

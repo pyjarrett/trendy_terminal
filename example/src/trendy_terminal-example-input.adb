@@ -13,11 +13,12 @@ package body Trendy_Terminal.Example.Input is
 
     -- Name that input!
     procedure Run_Print_Input is
+        subtype Key_Enter is Integer with
+            Static_Predicate => Key_Enter in 10 | 13;
     begin
         loop
             declare
                 Input     : constant ASU.Unbounded_String := ASU.To_Unbounded_String (TT.Platform.Get_Input);
-                Key_Enter : constant := 13;
             begin
                 AIO.New_Line;
                 if Trendy_Terminal.Maps.Is_Key (ASU.To_String (Input)) then
@@ -25,7 +26,7 @@ package body Trendy_Terminal.Example.Input is
                 end if;
 
                 for X in 1 .. ASU.Length (Input) loop
-                    if Character'Pos (ASU.Element (Input, X)) = Key_Enter then
+                    if Character'Pos (ASU.Element (Input, X)) in Key_Enter then
                         return;
                     end if;
                     AIO.Put_Line (Character'Pos (ASU.Element (Input, X))'Image);
