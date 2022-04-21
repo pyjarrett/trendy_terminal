@@ -48,63 +48,58 @@ package Trendy_Terminal.Linux is
     type tcflag_t is new Interfaces.C.unsigned;
     type cc_t is new Interfaces.C.unsigned_char;
     type speed_t is new Interfaces.C.unsigned;
-    type cc_array is array (Natural range 0 .. NCCS - 1) of cc_t;
+    type cc_array is array (Natural range 0 .. NCCS - 1) of cc_t with Convention => C;
 
     --!pp off
-    type c_lflag_t is (ISIG,
+    type c_lflag_bit is (ISIG,
                        ICANON,
                        XCASE,
-                       Unused1,
                        ECHO,
                        ECHOE,
                        ECHOK,
-                       Unused2,
                        ECHONL,
                        NOFLSH,
                        TOSTOP,
-                       Unused3,
                        ECHOCTL,
                        ECHOPRT,
                        ECHOKE,
-                       Unused4,
                        FLUSHO,
-                       Unused5,
-                       PENDIN);
+                       PENDIN,
+                       IEXTEN,
+                       EXTPROC)
+       with Size => tcflag_t'Size;
 
-    for c_lflag_t use
-      (ISIG    => 16#0000001#,
-       ICANON  => 16#0000002#,
-       XCASE   => 16#0000004#,
-       Unused1 => 16#0000008#,
-       ECHO    => 16#0000010#,
-       ECHOE   => 16#0000020#,
-       ECHOK   => 16#0000040#,
-       Unused2 => 16#0000080#,
-       ECHONL  => 16#0000100#,
-       NOFLSH  => 16#0000200#,
-       TOSTOP  => 16#0000400#,
-       Unused3 => 16#0000800#,
-       ECHOCTL => 16#0001000#,
-       ECHOPRT => 16#0002000#,
-       ECHOKE  => 16#0004000#,
-       Unused4 => 16#0008000#,
-       FLUSHO  => 16#0010000#,
-       Unused5 => 16#0020000#,
-       PENDIN  => 16#0040000#
+    for c_lflag_bit use
+      (ISIG    => 8#0000001#,
+       ICANON  => 8#0000002#,
+       XCASE   => 8#0000004#,
+       ECHO    => 8#0000010#,
+       ECHOE   => 8#0000020#,
+       ECHOK   => 8#0000040#,
+       ECHONL  => 8#0000100#,
+       NOFLSH  => 8#0000200#,
+       TOSTOP  => 8#0000400#,
+       ECHOCTL => 8#0001000#,
+       ECHOPRT => 8#0002000#,
+       ECHOKE  => 8#0004000#,
+       FLUSHO  => 8#0010000#,
+       PENDIN  => 8#0040000#,
+       IEXTEN  => 8#0100000#,
+       EXTPROC => 8#0200000#
       );
     --!pp on
 
     pragma Warnings (Off, "bits of *unused");
-    type Local_Flags is array (c_lflag_t) of Boolean with
+    type c_lflag_t is array (c_lflag_bit) of Boolean with
         Pack,
-        Size => 32;
+        Size => tcflag_t'Size;
     pragma Warnings (On, "bits of *unused");
 
     type Termios is record
         c_iflag  : tcflag_t;
         c_oflag  : tcflag_t;
         c_cflag  : tcflag_t;
-        c_lflag  : Local_Flags;
+        c_lflag  : c_lflag_t;
         c_line   : cc_t;
         c_cc     : cc_array;
         c_ispeed : speed_t;

@@ -88,6 +88,7 @@ package body Trendy_Terminal.Platform is
         Original_Input_Setting  := Std_Input.Settings;
         Original_Output_Setting := Std_Output.Settings;
         Original_Error_Setting  := Std_Error.Settings;
+
         return True;
     end Init;
 
@@ -157,7 +158,7 @@ package body Trendy_Terminal.Platform is
     end End_Of_Line;
 
     procedure Print_Configuration is
-        function To_Integer is new Ada.Unchecked_Conversion (Linux.Local_Flags, Integer);
+        function To_Integer is new Ada.Unchecked_Conversion (Linux.c_lflag_t, Integer);
     begin
         Ada.Text_IO.Put_Line ("Input Mode:  " & To_Integer (Std_Input.Settings.c_lflag)'Image);
         Ada.Text_IO.Put_Line ("Output Mode: " & To_Integer (Std_Output.Settings.c_lflag)'Image);
