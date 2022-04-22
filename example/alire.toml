@@ -16,13 +16,8 @@ windows = { Trendy_Terminal_Platform = "windows" }
 linux = { Trendy_Terminal_Platform = "linux" }
 macos = { Trendy_Terminal_Platform = "macos" }
 
-[available.'case(os)']
-linux = true
-windows = true
-macos = false
-
 [[depends-on]]
-trendy_terminal = "~0.0.1"
+trendy_terminal = "~0.0.5"
 
 [[pins]]
 trendy_terminal = { path = ".." }
