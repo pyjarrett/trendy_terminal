@@ -22,4 +22,4 @@ macos = { Trendy_Terminal_Platform = "macos" }
 [available.'case(os)']
 linux = true
 windows = true
-macos = false
+macos = true
