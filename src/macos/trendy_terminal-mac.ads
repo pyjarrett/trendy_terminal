@@ -44,15 +44,16 @@ package Trendy_Terminal.Mac is
     pragma Import (C, stdout, "__stdoutp");
     pragma Import (C, stderr, "__stderrp");
 
-    NCCS : constant := 32;
+    NCCS : constant := 20;
 
     type tcflag_t is new Interfaces.C.unsigned_long;
     type cc_t is new Interfaces.C.unsigned_char;
-    type speed_t is new Interfaces.C.unsigned_long;
-    type cc_array is array (Natural range 0 .. NCCS - 1) of cc_t;
+    type speed_t is new Interfaces.C.long;
+    type cc_array is array (Natural range 0 .. NCCS - 1) of cc_t
+        with Convention => C;
 
     --!pp off
-    type c_lflag_t is (
+    type c_lflag_bits is (
        ECHOKE     ,
        ECHOE      ,
        ECHOK      ,
@@ -71,10 +72,13 @@ package Trendy_Terminal.Mac is
        FLUSHO     ,
        Unused3    ,
        NOKERNINFO ,
+       Unused4    ,
+       Unused5    ,
+       Unused6    ,
        PENDIN     ,
        NOFLSH);
                            
-    for c_lflag_t use
+    for c_lflag_bits use
       (
        ECHOKE     => 16#00000001#,
        ECHOE      => 16#00000002#,
@@ -94,22 +98,25 @@ package Trendy_Terminal.Mac is
        FLUSHO     => 16#00800000#,
        Unused3    => 16#01000000#,
        NOKERNINFO => 16#02000000#,
+       Unused4    => 16#04000000#,
+       Unused5    => 16#08000000#,
+       Unused6    => 16#10000000#,
        PENDIN     => 16#20000000#,
        NOFLSH     => 16#80000000#
       );
     --!pp on
 
     pragma Warnings (Off, "bits of *unused");
-    type Local_Flags is array (c_lflag_t) of Boolean with
+    type c_lflag_t is array (c_lflag_bits) of Boolean with
         Pack,
-        Size => 32;
+        Size => tcflag_t'Size;
     pragma Warnings (On, "bits of *unused");
 
     type Termios is record
         c_iflag  : tcflag_t;
         c_oflag  : tcflag_t;
         c_cflag  : tcflag_t;
-        c_lflag  : Local_Flags;
+        c_lflag  : c_lflag_t;
         c_line   : cc_t;
         c_cc     : cc_array;
         c_ispeed : speed_t;

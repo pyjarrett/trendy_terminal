@@ -50,8 +50,6 @@ package body Trendy_Terminal.Platform is
     function Load_Terminal (File_Descriptor : Mac.FD; Terminal : not null access
         Mac.Termios) return Boolean is
     begin
-        Ada.Text_IO.Put_Line ("Loading terminal "
-            & Mac.FD'Image (File_Descriptor));
         if Mac.isatty (File_Descriptor) = 0 then
             Ada.Text_IO.Put_Line ("Unable to load file descriptor for terminal.");
             return False;
@@ -108,7 +106,6 @@ package body Trendy_Terminal.Platform is
 
     procedure Set (Setting : Platform.Input_Setting; Enabled : Boolean) is
     begin
-        Ada.Text_IO.Put_Line ("Setting flag");
         case Setting is
             when Platform.Echo =>
                 Std_Input.Settings.c_lflag (Mac.ECHO) := Enabled;
@@ -162,7 +159,7 @@ package body Trendy_Terminal.Platform is
     end End_Of_Line;
 
     procedure Print_Configuration is
-        function To_Integer is new Ada.Unchecked_Conversion (Mac.Local_Flags, Integer);
+        function To_Integer is new Ada.Unchecked_Conversion (Mac.c_lflag_t, Interfaces.C.long);
     begin
         Ada.Text_IO.Put_Line ("Original Input Mode:  " & To_Integer (Original_Input_Setting.c_lflag)'Image);
         Ada.Text_IO.Put_Line ("Original Output Mode: " & To_Integer (Original_Output_Setting.c_lflag)'Image);
