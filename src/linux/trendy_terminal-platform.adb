@@ -82,6 +82,7 @@ package body Trendy_Terminal.Platform is
         if not Make_Handle (Linux.stdin, Std_Input) or else not Make_Handle (Linux.stdout, Std_Output)
             or else not Make_Handle (Linux.stderr, Std_Error) then
             Ada.Text_IO.Put_Line ("Unable to get standard stream handles.");
+            return False;
         end if;
 
         -- Save the startup settings.
