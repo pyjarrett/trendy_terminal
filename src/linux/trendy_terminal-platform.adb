@@ -132,8 +132,9 @@ package body Trendy_Terminal.Platform is
 
     type VOIDP is new Interfaces.C.Strings.chars_ptr;
     function Read (File_Descriptor : Linux.FD; Buffer : VOIDP; Buffer_Size : Natural) return Integer
-        with Import     => True,
-             Convention => C;
+        with Import        => True,
+             Convention    => C,
+             External_Name => "read";
 
     -- Gets an entire input line from one keypress.  E.g. all the characters
     -- received for a controlling keypress, such as an arrow key.
