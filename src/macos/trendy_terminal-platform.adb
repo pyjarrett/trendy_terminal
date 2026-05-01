@@ -147,7 +147,7 @@ package body Trendy_Terminal.Platform is
             VOIDP (Interfaces.C.Strings.To_Chars_Ptr (Buffer'Unchecked_Access)),
             Buffer_Size);
         if Chars_Read > 0 then
-            return Interfaces.C.To_Ada(Buffer(1 .. Interfaces.C.size_t(Chars_Read) + 1));
+            return Interfaces.C.To_Ada(Buffer(1 .. Interfaces.C.size_t(Chars_Read)), Trim_Nul => False);
         else
             return "";
         end if;

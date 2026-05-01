@@ -222,7 +222,7 @@ package body Trendy_Terminal.Platform is
     begin
         if Win.ReadConsoleA (Std_Input.Handle, Win.LPVOID(Interfaces.C.Strings.To_Chars_Ptr(Buffer'Unchecked_Access)),
                          Buffer_Size, Chars_Read'Unchecked_Access, 0) /= 0 then
-            return Interfaces.C.To_Ada(Buffer(1 .. Interfaces.C.size_t(Chars_Read) + 1));
+            return Interfaces.C.To_Ada(Buffer(1 .. Interfaces.C.size_t(Chars_Read)), Trim_Nul => False);
         else
             return "";
         end if;
