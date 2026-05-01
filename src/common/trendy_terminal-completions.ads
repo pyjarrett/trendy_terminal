@@ -38,10 +38,10 @@ package Trendy_Terminal.Completions is
     procedure Move_Backward (Self : in out Completion_Set)
         with Pre => not Is_Empty (Self);
 
-    function Get_Current (Self : in out Completion_Set) return String
+    function Get_Current (Self : Completion_Set) return String
         with Pre => not Is_Empty (Self);
 
-    function Get_Index (Self : in out Completion_Set) return Integer
+    function Get_Index (Self : Completion_Set) return Integer
         with Pre => not Is_Empty (Self);
 
     function Length (Self : Completion_Set) return Integer;

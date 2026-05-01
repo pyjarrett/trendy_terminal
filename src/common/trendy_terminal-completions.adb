@@ -63,12 +63,12 @@ package body Trendy_Terminal.Completions is
         Set_Index (Self, Self.Index - 1);
     end Move_Backward;
 
-    function Get_Current (Self : in out Completion_Set) return String is
+    function Get_Current (Self : Completion_Set) return String is
     begin
         return Trendy_Terminal.Lines.Current (Self.Lines (Self.Index));
     end Get_Current;
 
-    function Get_Index (Self : in out Completion_Set) return Integer is
+    function Get_Index (Self : Completion_Set) return Integer is
     begin
         return Self.Index;
     end Get_Index;
