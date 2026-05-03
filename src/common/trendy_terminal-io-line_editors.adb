@@ -6,11 +6,11 @@ with Trendy_Terminal.Lines.Line_Vectors;
 package body Trendy_Terminal.IO.Line_Editors is
 
     function Should_Terminate_Input (Input_Line : ASU.Unbounded_String) return Boolean is
-        Key_CR : constant := 10;
-        Key_FF : constant := 13;
+        Key_LF : constant := 10;
+        Key_CR : constant := 13;
         Input  : constant Integer := Character'Pos(ASU.Element(Input_Line, 1));
     begin
-        return Input = Key_CR or else Input = Key_FF;
+        return Input = Key_CR or else Input = Key_LF;
     end Should_Terminate_Input;
 
     -- Processes the next line of input in according to completion, formatting,
