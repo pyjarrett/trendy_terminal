@@ -54,6 +54,10 @@ package body Trendy_Terminal.Platform is
     Std_Input             : Input_Stream;
     Std_Output, Std_Error : Output_Stream;
 
+    -- Output has been redirected to a file and we need to call WriteFile() instead of WriteConsole()
+    -- https://stackoverflow.com/questions/45805785/why-cant-i-redirect-output-from-writeconsole
+    Redirected_To_File    : Boolean := False;
+
     ---------------------------------------------------------------------------
     -- Output
     ---------------------------------------------------------------------------
@@ -63,8 +67,14 @@ package body Trendy_Terminal.Platform is
         Native  : aliased Interfaces.C.Strings.chars_ptr := Interfaces.C.Strings.New_String(S);
         Written : aliased Win.DWORD;
     begin
-        if Win.WriteConsoleA (H, Win.LPCVOID(Native), S'Length, Written'Unchecked_Access, 0) = 0 then
-            null;
+        if Redirected_To_File then
+            if Win.WriteFile (H, Win.LPCVOID(Native), S'Length, Written'Unchecked_Access, 0) = 0 then
+                null;
+            end if;
+        else
+            if Win.WriteConsoleA (H, Win.LPCVOID(Native), S'Length, Written'Unchecked_Access, 0) = 0 then
+                null;
+            end if;
         end if;
         Interfaces.C.Strings.Free(Native);
     end Put;
@@ -78,8 +88,14 @@ package body Trendy_Terminal.Platform is
         Native : aliased Interfaces.C.Strings.chars_ptr := Interfaces.C.Strings.New_String(S);
         Written : aliased Win.DWORD;
     begin
-        if Win.WriteConsoleA (Std_Output.Handle, Win.LPCVOID(Native), S'Length, Written'Unchecked_Access, 0) = 0 then
-            null;
+        if Redirected_To_File then
+            if Win.WriteFile (Std_Output.Handle, Win.LPCVOID(Native), S'Length, Written'Unchecked_Access, 0) = 0 then
+                null;
+            end if;
+        else
+            if Win.WriteConsoleA (Std_Output.Handle, Win.LPCVOID(Native), S'Length, Written'Unchecked_Access, 0) = 0 then
+                null;
+            end if;
         end if;
         Interfaces.C.Strings.Free(Native);
     end Put;
@@ -118,6 +134,16 @@ package body Trendy_Terminal.Platform is
         Std_Output.Handle := Win.GetStdHandle (Win.STD_OUTPUT_HANDLE);
         Std_Input.Handle  := Win.GetStdHandle (Win.STD_INPUT_HANDLE);
         Std_Error.Handle  := Win.GetStdHandle (Win.STD_ERROR_HANDLE);
+
+        -- If we aren't running interactively, bail out without changing anything.
+        declare
+            Output_DWORD : aliased Win.DWORD;
+        begin
+            if Win.GetConsoleMode (Std_Output.Handle, Output_DWORD'Unchecked_Access) = 0 then
+                Redirected_To_File := True;
+                return false;
+            end if;
+        end;
 
         if Std_Output.Handle = Win.INVALID_HANDLE_VALUE or else Std_Input.Handle = Win.INVALID_HANDLE_VALUE
             or else Std_Error.Handle = Win.INVALID_HANDLE_VALUE then

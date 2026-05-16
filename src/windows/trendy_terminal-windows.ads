@@ -119,7 +119,10 @@ package Trendy_Terminal.Windows is
 
     function WriteConsoleA(hFile : HANDLE; lpBuffer : LPCVOID; BytesToWrite : DWORD;
                         NumBytesWritten : LPDWORD; Overlapped : LPOVERLAPPED) return BOOL;
+    function WriteFile(hFile : HANDLE; lpBuffer : LPCVOID; BytesToWrite : DWORD;
+                        NumBytesWritten : LPDWORD; Overlapped : LPOVERLAPPED) return BOOL;
     pragma Import (Stdcall, WriteConsoleA, "WriteConsoleA");
+    pragma Import (Stdcall, WriteFile, "WriteFile");
 
     function ReadConsoleA (I               : HANDLE;
                            Buffer          : LPVOID;
