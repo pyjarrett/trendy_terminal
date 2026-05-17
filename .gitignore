@@ -1,3 +1,4 @@
+.vscode/
 obj/
 lib/
 build/
@@ -6,4 +7,3 @@ config/
 bin/
 lib/
 
-.vscode/
