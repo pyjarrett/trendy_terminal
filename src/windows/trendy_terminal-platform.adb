@@ -141,7 +141,7 @@ package body Trendy_Terminal.Platform is
         begin
             if Win.GetConsoleMode (Std_Output.Handle, Output_DWORD'Unchecked_Access) = 0 then
                 Redirected_To_File := True;
-                return false;
+                return False;
             end if;
         end;
 
