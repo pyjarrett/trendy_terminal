@@ -20,6 +20,14 @@ package body Trendy_Terminal.Environments is
 
     function Is_Available(Self : Environment) return Boolean is (Self.Initialized);
 
+    procedure Shutdown (Self : in out Environment) is
+    begin
+        if Self.Initialized then
+            Trendy_Terminal.Platform.Shutdown;
+            Self.Initialized := False;
+        end if;
+    end Shutdown;
+
     overriding
     procedure Initialize (Self : in out Environment) is
     begin
@@ -29,9 +37,7 @@ package body Trendy_Terminal.Environments is
     overriding
     procedure Finalize(Self : in out Environment) is
     begin
-        if Self.Initialized then
-            Trendy_Terminal.Platform.Shutdown;
-        end if;
+        Shutdown (Self);
     end Finalize;
 
 end Trendy_Terminal.Environments;

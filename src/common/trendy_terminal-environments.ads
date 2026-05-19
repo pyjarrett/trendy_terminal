@@ -23,6 +23,8 @@ package Trendy_Terminal.Environments is
 
     function Is_Available(Self : Environment) return Boolean;
 
+    procedure Shutdown (Self : in out Environment);
+
 private
 
     type Environment is new Ada.Finalization.Limited_Controlled with record
